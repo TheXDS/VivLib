@@ -141,7 +141,7 @@ If you're unsure about something, open a discussion or issue before coding — I
 # ⚖️ License
 By contributing, you agree that your contributions will be licensed under the same license as the project.
 
-See the [LICENSE](./LICENSE) file for details.
+See the [LICENSE](../LICENSE) file for details.
 
 # ❓ Infrequently Asked Questions
 1. **...But, why?**  

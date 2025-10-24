@@ -2,7 +2,7 @@
 
 Thanks for considering making a contribution to VivLib.
 
-This is a project driven mostly by curiosity, it is not intended as an all-encompassing "enterprise-grade" framework, but rather as a focused, well-documented library to help enthusiasts understand and mod classic Need for Speed game data.  
+This is a project driven mostly by curiosity, it is not intended as an all-encompassing "enterprise-grade" framework, but rather as a focused, well-documented library to help enthusiasts understand and mod classic Need For Speed game data.  
 Contributions that maintain this philosophy — clarity, correctness, and minimalism — are most welcome.
 
 I truly appreciate your time and effort in helping improve this project.  
@@ -36,13 +36,12 @@ Harassment, discrimination, or aggressive behavior will not be tolerated.
 If issues arise, please contact me directly or open a private discussion.
 
 ## 🚀 How to Contribute
-
 There are several ways to contribute:
 
 ### Reporting Bugs
 If you find a bug:
 1. Check the [issue tracker](../../issues) to see if it's already reported.
-2. If not, open a new issue using the **Bug Report** template. Otherwise, tro to add additional information that might be missing from the original report.
+2. If not, open a new issue using the **Bug Report** template. Otherwise, try to add additional information that might be missing from the original report.
 3. Include as much detail as possible — steps to reproduce, expected vs actual behavior, and system information. Logs are also great if available (and, VivLib-related)
 
 ### Requesting Features
@@ -59,13 +58,13 @@ If you want to contribute code:
    ```
    If you grabbed something from the [issue tracker](https://github.com/TheXDS/VivLib/issues) (which, you should ideally do) please include the issue number in your feature branch name.
      
-   If you started working on a feature that is not currently there, please take the time to create a new issue describing your proposal, that way we can track what's going on, and properly decide on a likely release cut.
+   If you started working on a feature that is not currently there, please take the time to create a new issue describing your proposal. That way we can track what's going on, and properly decide on a likely release cut.
 2. Work on your feature. As of right now, I'm not following a strict *Merge window*. Features will be shipped on the next release cycle, whenever we decide enough new features and/or bugfixes have been added to the repo.  
    
    If your feature is large enough in scope, it's possible to create a new minor release that only includes your changes, given that there is no additional activity in the repo (little to no active forks, no new issues added)
-3. Test your changes thoroughly. Ideally, have unit/integration tests made for it.
+3. Test your changes thoroughly. Ideally, have unit/integration tests made for them.
      
-   Of course, some change are non-code related, but if possible, have a second pair of eyes look at them (or, proof-read yourself too)
+   Of course, some changes are non-code related, but if possible, have a second pair of eyes look at them (or, proof-read yourself too)
    > Note: Changes without unit tests will be subject to very strict scrutiny.
 5. Create a [pull request](https://github.com/TheXDS/VivLib/pulls). Wait for it to be approved and merged.
 6. 💵 Profit.
@@ -99,9 +98,10 @@ You can use any editor/IDE you want, as long as it supports the version of the .
   Irony and sarcasm are welcome if not excessive nor offensive. We all sometimes need a quick laugh.
 - Include or update unit tests for any code changes.
 - Avoid introducing new dependencies without discussion.
+- Following SOLID is good, but when taken to the extreme it's just non-sensical.
 
 ### Notes on AI usage
-I'm pro AI, as long as it's being used properly. Heck, portions of this very document were AI-generated. Still, try yourself first. *'You'll lose what you don't use'* 🧠
+I'm pro AI, as long as it's being used properly and responsibly. Heck, portions of this very document were AI-generated. Still, try yourself first. *'You'll lose what you don't use'* 🧠
 
 If you include AI-generated code, please pay special attention to:
 
@@ -109,6 +109,15 @@ If you include AI-generated code, please pay special attention to:
 - Correctness of generated unit-test (I know you'll do this one, I would)
 - Removal of redundant in-code comments — those generally just add unwanted noise.
 - Most definitely, **Test the code**. AI coding agents are known to hallucinate a lot, especially with obscure or very recent frameworks.
+
+### Notes on SOLID
+When Uncle Bob came up with SOLID, he just wanted us to deal with less headaches for maintainability in the future. It's a laudable goal. But then, some people took this idea and really ran with it, to the point where it became a bit ridiculous.
+
+Use SOLID, but responsibly. Do not create absurd levels of abstraction layers just because of "Single responsibility" and "Interface segregation". Yes, a method should only have access to the members they really need. But, if a bit of a larger interface could be used by two different methods that have only slightly different requirements then it would not make sense to segregate and create a bunch of tiny interfaces just so that you are adhering strictly to ISP or SRP.
+
+Single responsibility is good. But if stuff is too closely related, then maybe they could be grouped together. Codecs and serializers are a good example. SRP/ISP could have dictated that I should have one interface and class each for reading and for writing. Well, as far as I know, there's only one correct way to serialize an FCE model. Alternate implementations that yield the same results and have the exact same effect would not make any sense, so having an interface just so that I can replace the implementation of the serializer part is unnecessary.
+
+As for dependency injection... Again, if you have the single implementation of something that does what you need, there is not too much harm in not religiously using DI. It goes case-by-case, because we still want to have classes that are testeable, but sometimes a decenty well written coupled class that can be integrationally-tested is better than add a bunch of extra steps to what should be a simple functionality.
 
 ## 💬 Commit Guidelines
 
@@ -188,4 +197,4 @@ See the [LICENSE](../LICENSE) file for details.
 14. **How many Sushi rolls is it acceptable to eat in an all-you-can-eat Sushi restaurant?**  
     Yes.
 15. **Most controversial, if wrong, belief?**  
-    Black holes are probably neutron stars where it did collapse to an even denser state without being an infinitesimally small point in space. Reality not always maps 1:1 with maths (negative lengths, anyone?)
+    A Black Hole is probably a neutron star where it did collapse to an even denser state without being an infinitesimally small point in space. Reality not always maps 1:1 with maths (negative lengths, anyone?)

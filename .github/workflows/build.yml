@@ -1,0 +1,42 @@
+name: "Build VivLib"
+on:
+  push:
+    paths-ignore:
+      - '**/*.md'
+      - '**/*.gitignore'
+      - '**/*.gitattributes'
+    branches-ignore:
+      - 'docs*'
+    tags-ignore:
+      - '*'
+jobs:
+  build:
+    runs-on: windows-latest
+    env:
+      Solution_Name: VivLib.slnx
+      Configuration: Debug
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v4
+    - name: Install .NET
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: |
+          8.0.x
+          9.0.x
+    - name: Install Codecov
+      run: choco install codecov -y
+    - name: Build VivLib
+      run: dotnet build $env:Solution_Name --configuration=$env:Configuration
+    - name: Test VivLib
+      run: dotnet test $env:Solution_Name --no-build --collect:"XPlat Code Coverage" --results-directory .\Build\tests -- DataCollectionRunSettings.DataCollectors.DataCollector.Configuration.Format=opencover -- -maxcpucount:1
+    - name: Upload code coverage report
+      run: foreach ($j in (ls .\Build\tests\ -Directory)) { codecov -f "$($j.FullName)\coverage.opencover.xml" }
+      env:
+        CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
+    - name: Create NuGet Packages
+      run: dotnet pack $env:Solution_Name --configuration=$env:Configuration --version-suffix=$env:GITHUB_SHA --include-source -p:RepositoryBranch=${{ github.ref }} -p:RepositoryCommit=${{ github.sha }} -p:ContinuousIntegrationBuild=true
+    - uses: actions/upload-artifact@v4
+      with:
+        name: VivLib-nuget-packages
+        path: Build/Bin/**/*.nupkg

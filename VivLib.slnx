@@ -1,0 +1,4 @@
+<Solution>
+  <Project Path="src/VivLib.Tests/VivLib.Tests.csproj" />
+  <Project Path="src/VivLib/VivLib.csproj" />
+</Solution>

@@ -12,22 +12,23 @@ This document outlines how you can contribute effectively and consistently.
 
 ## 🧭 Table of Contents
 
-- [Code of Conduct](#🤝-code-of-conduct)
-- [How to Contribute](#🚀-how-to-contribute)
+- [Code of Conduct](#code-of-conduct)
+- [How to Contribute](#how-to-contribute)
   - [Reporting Bugs](#reporting-bugs)
   - [Requesting Features](#requesting-features)
   - [Submitting Changes](#submitting-changes)
 - [Development Setup](#development-setup)
-- [Coding Guidelines](#🧱-coding-guidelines)
-- [Commit Guidelines](#💬-commit-guidelines)
-- [Pull Request Process](#🔄-pull-request-process)
-- [Release Philosophy](#🕒-release-philosophy)
-- [Questions or ideas?](#💡-questions-or-ideas)
-- [License](#⚖️-license)
-- [IAQ](#❓-infrequently-asked-questions)
+- [Coding Guidelines](#coding-guidelines)
+- [Commit Guidelines](#commit-guidelines)
+- [Pull Request Process](#pull-request-process)
+- [Release Philosophy](#release-philosophy)
+- [Questions or ideas?](#questions-or-ideas)
+- [License](#license)
+- [IAQ](#infrequently-asked-questions)
 
 ---
 
+<a name="code-of-conduct"></a>
 ## 🤝 Code of Conduct
 VivLib aims to foster a friendly, open, and respectful environment for all contributors.  
 Be considerate, constructive, and supportive when engaging with others.  
@@ -35,6 +36,7 @@ Harassment, discrimination, or aggressive behavior will not be tolerated.
 
 If issues arise, please contact me directly or open a private discussion.
 
+<a name="how-to-contribute"></a>
 ## 🚀 How to Contribute
 There are several ways to contribute:
 
@@ -69,7 +71,8 @@ If you want to contribute code:
 5. Create a [pull request](https://github.com/TheXDS/VivLib/pulls). Wait for it to be approved and merged.
 6. 💵 Profit.
 
-## Development Setup
+<a name="development-setup"></a>
+## 🧩 Development Setup
 VivLib does not need a complex setup. You can work on any OS supported by .NET.
 You can use any editor/IDE you want, as long as it supports the version of the .NET SDK that VivLib targets.
 > Note: VivLib uses the new `SLNX` format, so most legacy environments might not be able to understand it. If this is the case, do **NOT** push an `.sln` file if one is generated.
@@ -86,6 +89,7 @@ You can use any editor/IDE you want, as long as it supports the version of the .
    dotnet build
    ```
 
+<a name="coding-guidelines"></a>
 ## 🧱 Coding Guidelines
 - Follow the style conventions of C#12.
 - Keep functions small, clear, and testable, preferably no more than 3 levels of indentation. If you need more than that, re-think your logic. I'd like to avoid extremely long or complex methods as much as possible.
@@ -119,8 +123,8 @@ Single responsibility is good. But if stuff is too closely related, then maybe t
 
 As for dependency injection... Again, if you have the single implementation of something that does what you need, there is not too much harm in not religiously using DI. It goes case-by-case, because we still want to have classes that are testeable, but sometimes a decenty well written coupled class that can be integrationally-tested is better than add a bunch of extra steps to what should be a simple functionality.
 
+<a name="commit-guidelines"></a>
 ## 💬 Commit Guidelines
-
 We want to use [Conventional Commits](https://www.conventionalcommits.org/)
  for clarity and automation. I went through enough confusion in Vivianne already 😅
 
@@ -131,7 +135,7 @@ fix: correct buffer overflow in decoder
 docs: update contributing guidelines
 test: add unit tests for EA-ADPCM encoder
 ```
-
+<a name="pull-request-process"></a>
 # 🔄 Pull Request Process
 1. Ensure all tests pass.
 2. Update documentation if behavior changes.
@@ -139,19 +143,23 @@ test: add unit tests for EA-ADPCM encoder
 4. Wait for review and address any feedback.
 5. Once approved, your PR will be merged.
 
+<a name="release-philosophy"></a>
 # 🕒 Release Philosophy
 As I said, VivLib follows a "release when ready" approach — there’s no strict merge window.  
 When enough meaningful fixes or features have been added, a new version is tagged and released.  
 If your contribution is large but isolated, we might create a minor release for it; again, fork/issues activity and schedules permitting.
 
+<a name="questions-or-ideas"></a>
 # 💡 Questions or Ideas?
 If you're unsure about something, open a discussion or issue before coding — I'd rather talk through ideas early than review unnecessary code later.
 
+<a name="license"></a>
 # ⚖️ License
 By contributing, you agree that your contributions will be licensed under the same license as the project.
 
 See the [LICENSE](../LICENSE) file for details.
 
+<a name="infrequently-asked-questions"></a>
 # ❓ Infrequently Asked Questions
 1. **...But, why?**  
    As I said. Mostly curiosity.
@@ -174,8 +182,8 @@ See the [LICENSE](../LICENSE) file for details.
 8. **Why did he/she/it/they/thy/thou/etc. leave me?😔**  
    The heart is a tempestuous thing, friend. But, there's love in anyone that's still around you, like your family, your pets, or even that old lonely lady that wants to talk with you all day even if you have stuff to do. But, you have to love yourself before you try to get love back from others.
 9. **Why is it pronounced "Wens-day" if it's written "Wednesday"?**  
-   As a famed english teacher called Bobby Finn would say: "it's because that's why. ~you don't see how...~"
-10. **I've seem some of your other projects. Can I get a copy of that cool ASCII mushroom cloud?**  
+   As a famed english teacher called Bobby Finn would say: "it's because <ins>that's why</ins>. <sub>you don't see how...</sub>"
+10. **I've seen some of your other projects. Can I get a copy of that cool ASCII mushroom cloud?**  
     Sure.
     ```
       _.----._

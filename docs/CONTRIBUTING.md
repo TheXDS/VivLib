@@ -1,4 +1,4 @@
-﻿# Contributing
+# Contributing
 
 Thanks for considering making a contribution to VivLib.
 
@@ -12,19 +12,19 @@ This document outlines how you can contribute effectively and consistently.
 
 ## 🧭 Table of Contents
 
-- [Code of Conduct](#code-of-conduct)
-- [How to Contribute](#how-to-contribute)
+- [Code of Conduct](#🤝-code-of-conduct)
+- [How to Contribute](#🚀-how-to-contribute)
   - [Reporting Bugs](#reporting-bugs)
   - [Requesting Features](#requesting-features)
   - [Submitting Changes](#submitting-changes)
 - [Development Setup](#development-setup)
-- [Coding Guidelines](#coding-guidelines)
-- [Commit Guidelines](#commit-guidelines)
-- [Pull Request Process](#pull-request-process)
-- [Release Philosophy](#release-philosophy)
-- [Questions or ideas?](#questions-or-ideas)
-- [License](#license)
-- [IAQ](#infrequently-asked-questions)
+- [Coding Guidelines](#🧱-coding-guidelines)
+- [Commit Guidelines](#💬-commit-guidelines)
+- [Pull Request Process](#🔄-pull-request-process)
+- [Release Philosophy](#🕒-release-philosophy)
+- [Questions or ideas?](#💡-questions-or-ideas)
+- [License](#⚖️-license)
+- [IAQ](#❓-infrequently-asked-questions)
 
 ---
 

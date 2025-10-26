@@ -1,19 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿namespace TheXDS.Vivianne.Codecs;
 
-namespace TheXDS.Vivianne.Codecs
+/// <summary>
+/// Implements a codec that can read and write Huffman-compressed data.
+/// </summary>
+public static class HuffmanCodec
 {
-    public static class HuffmanCodec
-    {
-        //public byte[] Decompress(Stream stream)
-        //{
-        //    using var br = new BinaryReader(stream);
-
-
-
-        //}
-    }
+    // TODO: actually implement codec.
 }

@@ -1,4 +1,6 @@
-﻿namespace TheXDS.Vivianne.Serializers.Audio.Mus;
+﻿#pragma warning disable CS0649
+
+namespace TheXDS.Vivianne.Serializers.Audio.Mus;
 
 internal struct MapSectionRecord
 {

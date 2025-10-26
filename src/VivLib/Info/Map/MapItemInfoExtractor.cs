@@ -2,8 +2,12 @@
 
 namespace TheXDS.Vivianne.Info.Map
 {
+    /// <summary>
+    /// Extracts and displays information on a <see cref="MapItem"/> entity.
+    /// </summary>
     public class MapItemInfoExtractor : IEntityInfoExtractor<MapItem>
     {
+        /// <inheritdoc/>
         public string[] GetInfo(MapItem entity)
         {
             return

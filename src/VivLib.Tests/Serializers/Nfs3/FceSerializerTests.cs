@@ -78,8 +78,8 @@ public class FceSerializerTests() : SerializerTestsBase<FceSerializer, FceFile>(
                     new()
                     {
                         TexturePage = 1,
-                        I1 = 1,
-                        I2 = 2,
+                        I1 = 2,
+                        I2 = 1,
                         I3 = 3,
                         Unk_0x10 = new byte[12],
                         U1 = 1f,
@@ -92,8 +92,8 @@ public class FceSerializerTests() : SerializerTestsBase<FceSerializer, FceFile>(
                     new()
                     {
                         TexturePage = 1,
-                        I1 = 4,
-                        I2 = 5,
+                        I1 = 5,
+                        I2 = 4,
                         I3 = 6,
                         Unk_0x10 = new byte[12],
                         U1 = 0f,
@@ -121,55 +121,13 @@ public class FceSerializerTests() : SerializerTestsBase<FceSerializer, FceFile>(
                     {
                         TexturePage = 1,
                         I1 = 2,
-                        I2 = 3,
-                        I3 = 6,
-                        Unk_0x10 = new byte[12],
-                        U1 = 0f,
-                        U2 = 0f,
-                        U3 = 1f,
-                        V1 = 0f,
-                        V2 = 1f,
-                        V3 = 0f
-                    },
-                    new()
-                    {
-                        TexturePage = 1,
-                        I1 = 3,
                         I2 = 6,
-                        I3 = 7,
-                        Unk_0x10 = new byte[12],
-                        U1 = 1f,
-                        U2 = 0f,
-                        U3 = 1f,
-                        V1 = 1f,
-                        V2 = 1f,
-                        V3 = 0f
-                    },
-                    new()
-                    {
-                        TexturePage = 1,
-                        I1 = 0,
-                        I2 = 1,
                         I3 = 4,
                         Unk_0x10 = new byte[12],
                         U1 = 0f,
                         U2 = 0f,
                         U3 = 1f,
                         V1 = 0f,
-                        V2 = 1f,
-                        V3 = 0f
-                    },
-                    new()
-                    {
-                        TexturePage = 1,
-                        I1 = 1,
-                        I2 = 4,
-                        I3 = 5,
-                        Unk_0x10 = new byte[12],
-                        U1 = 1f,
-                        U2 = 0f,
-                        U3 = 1f,
-                        V1 = 1f,
                         V2 = 1f,
                         V3 = 0f
                     },
@@ -179,6 +137,48 @@ public class FceSerializerTests() : SerializerTestsBase<FceSerializer, FceFile>(
                         I1 = 0,
                         I2 = 2,
                         I3 = 4,
+                        Unk_0x10 = new byte[12],
+                        U1 = 1f,
+                        U2 = 0f,
+                        U3 = 1f,
+                        V1 = 1f,
+                        V2 = 1f,
+                        V3 = 0f
+                    },
+                    new()
+                    {
+                        TexturePage = 1,
+                        I1 = 0,
+                        I2 = 4,
+                        I3 = 5,
+                        Unk_0x10 = new byte[12],
+                        U1 = 0f,
+                        U2 = 0f,
+                        U3 = 1f,
+                        V1 = 0f,
+                        V2 = 1f,
+                        V3 = 0f
+                    },
+                    new()
+                    {
+                        TexturePage = 1,
+                        I1 = 0,
+                        I2 = 5,
+                        I3 = 1,
+                        Unk_0x10 = new byte[12],
+                        U1 = 1f,
+                        U2 = 0f,
+                        U3 = 1f,
+                        V1 = 1f,
+                        V2 = 1f,
+                        V3 = 0f
+                    },
+                    new()
+                    {
+                        TexturePage = 1,
+                        I1 = 2,
+                        I2 = 7,
+                        I3 = 6,
                         Unk_0x10 = new byte[12],
                         U1 = 0f,
                         U2 = 0f,
@@ -191,8 +191,8 @@ public class FceSerializerTests() : SerializerTestsBase<FceSerializer, FceFile>(
                     {
                         TexturePage = 1,
                         I1 = 2,
-                        I2 = 4,
-                        I3 = 6,
+                        I2 = 3,
+                        I3 = 7,
                         Unk_0x10 = new byte[12],
                         U1 = 1f,
                         U2 = 0f,
@@ -204,7 +204,7 @@ public class FceSerializerTests() : SerializerTestsBase<FceSerializer, FceFile>(
                     new()
                     {
                         TexturePage = 1,
-                        I1 = 1,
+                        I1 = 3,
                         I2 = 5,
                         I3 = 7,
                         Unk_0x10 = new byte[12],
@@ -218,9 +218,9 @@ public class FceSerializerTests() : SerializerTestsBase<FceSerializer, FceFile>(
                     new()
                     {
                         TexturePage = 1,
-                        I1 = 3,
+                        I1 = 1,
                         I2 = 5,
-                        I3 = 7,
+                        I3 = 3,
                         Unk_0x10 = new byte[12],
                         U1 = 1f,
                         U2 = 0f,
@@ -236,21 +236,32 @@ public class FceSerializerTests() : SerializerTestsBase<FceSerializer, FceFile>(
         {
             new FceDummy()
             {
-                Name = ":HLFO",
-                Position = new Vector3(0f, 0.5f, 0f)
+                Name = "HLFO",
+                Position = new Vector3(0.5f, 0f, 0f)
             },
             new FceDummy()
             {
-                Name = ":HFRE",
-                Position = new Vector3(0f, -0.5f, 0f)
+                Name = "HFRE",
+                Position = new Vector3(-0.5f, 0f, 0f)
+            },
+                        new FceDummy()
+            {
+                Name = "TRLN",
+                Position = new Vector3(0f, 0f, 0.5f)
+            },
+            new FceDummy()
+            {
+                Name = "TRRN",
+                Position = new Vector3(0f, 0f, -0.5f)
             }
+
         },
         Unk_0x1e04 = new byte[64]
     };
 
     protected override void TestParsedFile(FceFile expected, FceFile actual)
     {
-        Assert.Multiple(() =>
+        using (Assert.EnterMultipleScope())
         {
             Assert.That(actual.Magic, Is.EqualTo(expected.Magic));
             Assert.That(actual.Arts, Is.EqualTo(expected.Arts));
@@ -263,28 +274,28 @@ public class FceSerializerTests() : SerializerTestsBase<FceSerializer, FceFile>(
             Assert.That(actual.PrimaryColors, Is.EquivalentTo(expected.PrimaryColors));
             Assert.That(actual.SecondaryColors, Is.EquivalentTo(expected.SecondaryColors));
             Assert.That(actual.Unk_0x1e04, Is.EqualTo(expected.Unk_0x1e04));
-        });
+        }
         var expectedPart = expected.GetPart(":HB")!;
         var actualPart = actual.GetPart(":HB")!;
         Assert.That(actualPart, Is.Not.Null);
-        Assert.Multiple(() =>
+        using (Assert.EnterMultipleScope())
         {
             Assert.That(actualPart.Name, Is.EqualTo(expectedPart.Name));
             Assert.That(actualPart.Origin, Is.EqualTo(expectedPart.Origin));
             Assert.That(actualPart.Vertices, Is.EquivalentTo(expectedPart.Vertices));
             Assert.That(actualPart.Normals, Is.EquivalentTo(expectedPart.Normals));
             Assert.That(actualPart.Triangles, Is.EquivalentTo(expectedPart.Triangles));
-        });
+        }
         foreach (var j in (IEnumerable<string>)[":HLFO", ":HFRE"])
         {
             var expectedDummy = expected.GetDummy(j)!;
             var actualDummy = actual.GetDummy(j)!;
             Assert.That(actualDummy, Is.Not.Null);
-            Assert.Multiple(() => 
+            using (Assert.EnterMultipleScope())
             {
                 Assert.That(actualDummy.Name, Is.EqualTo(expectedDummy.Name));
                 Assert.That(actualDummy.Position, Is.EqualTo(expectedDummy.Position));
-            });
+            }
         }
     }
 }

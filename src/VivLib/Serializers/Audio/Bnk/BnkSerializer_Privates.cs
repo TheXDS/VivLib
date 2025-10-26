@@ -122,7 +122,7 @@ public partial class BnkSerializer : ISerializer<BnkFile>
 
     private static int CalculateBnkHeaderSize(BnkFile bnk)
     {
-        return (bnk.FileVersion == 4 ? Marshal.SizeOf<BnkV4Header>() - 4 : 0) + (bnk.Streams.Count * sizeof(int) * 2);
+        return Marshal.SizeOf<BnkHeader>() + (bnk.FileVersion == 4 ? Marshal.SizeOf<BnkV4Header>() - 4 : 0) + (bnk.Streams.Count * sizeof(int));
     }
 
     private static int CalculateTotalPtHeadersSize(BnkFile entity)

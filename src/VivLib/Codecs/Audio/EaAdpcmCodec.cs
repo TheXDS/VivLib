@@ -12,12 +12,6 @@ namespace TheXDS.Vivianne.Codecs.Audio;
 /// </summary>
 public class EaAdpcmCodec : IAudioCodec
 {
-    /// <summary>
-    /// Creates a new instance of the <see cref="EaAdpcmCodec"/> class.
-    /// </summary>
-    /// <returns></returns>
-    public static EaAdpcmCodec Create() => new();
-
     private static readonly long[] EATable =
     [
         0x00000000,
@@ -149,18 +143,6 @@ public class EaAdpcmCodec : IAudioCodec
         return MemoryMarshal.AsBytes(new ReadOnlySpan<short>([.. outputList]));
     }
 
-    /// <inheritdoc/>
-    public byte[] Decode(byte[] sourceBytes, PtHeader header) => header[PtAudioHeaderField.Channels].Value switch
-    {
-        2 => DecompressStereo(sourceBytes),
-        _ => throw new NotSupportedException($"Unsupported channel count: {header[PtAudioHeaderField.Channels]}"),
-    };
-
-    /// <inheritdoc/>
-    public byte[] Encode(byte[] sourceBytes, PtHeader header)
-    {
-        return Encode(CommonHelpers.MapToInt16(sourceBytes));
-    }
     private static byte[] Encode(short[] pcmSamples, int samplesPerBlock = 28)
     {
         using var ms = new MemoryStream();
@@ -179,34 +161,76 @@ public class EaAdpcmCodec : IAudioCodec
 
     private static (EaAdpcmStereoChunkHeader, byte[]) EncodeBlock(short[] pcm)
     {
-        var left = new short[pcm.Length / 2];
-        var right = new short[pcm.Length / 2];
-        for (int i = 0; i < left.Length; i++)
+        const int SubBlockSamples = 0x1C;
+        int numSamples = pcm.Length / 2;
+        short[] left = new short[numSamples];
+        short[] right = new short[numSamples];
+        for (int i = 0; i < numSamples; i++)
         {
             left[i] = pcm[i * 2];
-            right[i] = pcm[(i * 2) + 1];
+            right[i] = pcm[i * 2 + 1];
         }
-
-        var (lPredictor, lShift, lCompressed, lState) = EncodeChannel(left);
-        var (rPredictor, rShift, rCompressed, rState) = EncodeChannel(right);
-
-        var compressed = new List<byte>
+        var compressed = new List<byte>();
+        var initialLeftState = new EaAdpcmInitialState
         {
-            (byte)((lPredictor << 4) | rPredictor),
-            (byte)(((lShift - 8) << 4) | (rShift - 8))
+            PreviousSample = left.Length > 0 ? left[0] : (short)0,
+            CurrentSample = left.Length > 1 ? left[1] : (short)0
         };
-        for (int i = 0; i < lCompressed.Length; i++)
+        var initialRightState = new EaAdpcmInitialState
         {
-            compressed.Add((byte)((lCompressed[i] << 4) | (rCompressed[i] & 0x0F)));
+            PreviousSample = right.Length > 0 ? right[0] : (short)0,
+            CurrentSample = right.Length > 1 ? right[1] : (short)0
+        };
+        var leftState = new EaAdpcmInitialState
+        {
+            PreviousSample = initialLeftState.PreviousSample,
+            CurrentSample = initialLeftState.CurrentSample
+        };
+        var rightState = new EaAdpcmInitialState
+        {
+            PreviousSample = initialRightState.PreviousSample,
+            CurrentSample = initialRightState.CurrentSample
+        };
+        for (int offset = 0; offset < numSamples; offset += SubBlockSamples)
+        {
+            int remaining = Math.Min(SubBlockSamples, numSamples - offset);
+            short[] leftSubPcm = new short[2 + SubBlockSamples];
+            short[] rightSubPcm = new short[2 + SubBlockSamples];
+            leftSubPcm[0] = leftState.PreviousSample;
+            leftSubPcm[1] = leftState.CurrentSample;
+            rightSubPcm[0] = rightState.PreviousSample;
+            rightSubPcm[1] = rightState.CurrentSample;
+            for (int i = 0; i < remaining; i++)
+            {
+                leftSubPcm[2 + i] = left[offset + i];
+                rightSubPcm[2 + i] = right[offset + i];
+            }
+            if (remaining < SubBlockSamples)
+            {
+                short lastL = left[offset + remaining - 1];
+                short lastR = right[offset + remaining - 1];
+                for (int i = remaining; i < SubBlockSamples; i++)
+                {
+                    leftSubPcm[2 + i] = lastL;
+                    rightSubPcm[2 + i] = lastR;
+                }
+            }
+            var (lPredictor, lShift, lNibbles, lNewState) = EncodeChannel(leftSubPcm);
+            var (rPredictor, rShift, rNibbles, rNewState) = EncodeChannel(rightSubPcm);
+            compressed.Add((byte)((lPredictor << 4) | (rPredictor & 0x0F)));
+            compressed.Add((byte)(((lShift - 8) << 4) | ((rShift - 8) & 0x0F)));
+            int nibCount = Math.Min(SubBlockSamples, Math.Min(lNibbles.Length, rNibbles.Length));
+            for (int i = 0; i < nibCount; i++)
+                compressed.Add((byte)((lNibbles[i] << 4) | (rNibbles[i] & 0x0F)));
+            leftState = lNewState;
+            rightState = rNewState;
         }
-
         var header = new EaAdpcmStereoChunkHeader
         {
-            OutSize = pcm.Length,
-            LeftChannel = lState,
-            RightChannel = rState
+            OutSize = (ushort)numSamples,
+            LeftChannel = initialLeftState,
+            RightChannel = initialRightState
         };
-
         return (header, compressed.ToArray());
     }
 
@@ -215,7 +239,7 @@ public class EaAdpcmCodec : IAudioCodec
         int bestPredictor = 0;
         int bestShift = 0;
         long bestError = long.MaxValue;
-        byte[] bestNibbles = new byte[pcm.Length];
+        byte[] bestNibbles = [];
         EaAdpcmInitialState bestState = default;
 
         for (int predictor = 0; predictor < 16; predictor++)
@@ -223,37 +247,57 @@ public class EaAdpcmCodec : IAudioCodec
             int c1 = (int)EATable[predictor];
             int c2 = (int)EATable[predictor + 4];
 
-            for (int shift = 8; shift <= 15; shift++)
+            for (int dshift = 8; dshift <= 15; dshift++)
             {
-                var nibbles = new byte[pcm.Length];
+                var nibbles = new byte[Math.Max(0, pcm.Length - 2)];
                 int prev = pcm[0];
                 int curr = pcm[1];
                 long err = 0;
-
                 for (int i = 2; i < pcm.Length; i++)
                 {
-                    int predicted = ((c1 * curr) + (c2 * prev)) >> 8;
-                    int delta = pcm[i] - predicted;
-                    int quantized = delta << shift >> 0x1C;
+                    int delta = (pcm[i] << 8) - ((c1 * curr) + (c2 * prev));
+                    int quantized = (int)(((long)delta << dshift) >> 28);
                     quantized = Math.Clamp(quantized, -8, 7);
-                    int reconstructed = ((quantized << 0x1C) >> shift) + predicted;
+                    int reconstructed = (int)((((long)quantized << 28) >> dshift) + ((c1 * curr) + (c2 * prev)) + 0x80) >> 8;
                     err += Math.Abs(pcm[i] - reconstructed);
                     prev = curr;
                     curr = reconstructed;
-                    nibbles[i] = (byte)(quantized & 0xF);
+                    nibbles[i - 2] = (byte)(quantized & 0xF);
                 }
-
                 if (err < bestError)
                 {
                     bestError = err;
                     bestPredictor = predictor;
-                    bestShift = shift;
+                    bestShift = dshift;
                     bestNibbles = nibbles;
-                    bestState = new EaAdpcmInitialState { CurrentSample = (short)curr, PreviousSample = (short)prev };
+                    bestState = new EaAdpcmInitialState
+                    {
+                        PreviousSample = (short)prev,
+                        CurrentSample = (short)curr
+                    };
                 }
             }
         }
 
-        return (bestPredictor, bestShift, bestNibbles.Skip(2).ToArray(), bestState);
+        return (bestPredictor, bestShift, bestNibbles, bestState);
+    }
+
+    /// <summary>
+    /// Creates a new instance of the <see cref="EaAdpcmCodec"/> class.
+    /// </summary>
+    /// <returns></returns>
+    public static EaAdpcmCodec Create() => new();
+
+    /// <inheritdoc/>
+    public byte[] Decode(byte[] sourceBytes, PtHeader header) => header[PtAudioHeaderField.Channels].Value switch
+    {
+        2 => DecompressStereo(sourceBytes),
+        _ => throw new NotSupportedException($"Unsupported channel count: {header[PtAudioHeaderField.Channels]}"),
+    };
+
+    /// <inheritdoc/>
+    public byte[] Encode(byte[] sourceBytes, PtHeader header)
+    {
+        return Encode(CommonHelpers.MapToInt16(sourceBytes));
     }
 }

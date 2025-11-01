@@ -105,7 +105,7 @@ public abstract class CarpSerializerTestsBase<TSerializer, TFile>(string testRes
 
     protected override void TestParsedFile(TFile expected, TFile actual)
     {
-        Assert.Multiple(() =>
+        using (Assert.EnterMultipleScope())
         {
             Assert.That(actual.SerialNumber, Is.EqualTo(expected.SerialNumber));
             Assert.That(actual.Mass, Is.EqualTo(expected.Mass));
@@ -190,6 +190,6 @@ public abstract class CarpSerializerTestsBase<TSerializer, TFile>(string testRes
             Assert.That(actual.AiCurve5, Is.EquivalentTo(expected.AiCurve5));
             Assert.That(actual.AiCurve6, Is.EquivalentTo(expected.AiCurve6));
             Assert.That(actual.AiCurve7, Is.EquivalentTo(expected.AiCurve7));
-        });
+        }
     }
 }

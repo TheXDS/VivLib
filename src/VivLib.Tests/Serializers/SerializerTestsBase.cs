@@ -88,5 +88,21 @@ public abstract class SerializerTestsBase<TSerializer, TFile>(string streamName,
         Assert.That(result, Is.EquivalentTo(testFileContents));
     }
 
+    [Test]
+    public async Task Serialization_roundtrip_test()
+    {
+        var serialized = await serializer.SerializeAsync(referenceFile);
+        var deserialized = await serializer.DeserializeAsync(serialized);
+        TestParsedFile(referenceFile, deserialized);
+    }
+
+    [Test]
+    public async Task Deserialization_roundtrip_test()
+    {
+        var deserialized = await serializer.DeserializeAsync(testFileContents);
+        var serialized = await serializer.SerializeAsync(deserialized);
+        Assert.That(serialized, Is.EquivalentTo(testFileContents));
+    }
+
     protected abstract void TestParsedFile(TFile expected, TFile actual);
 }

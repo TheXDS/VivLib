@@ -254,7 +254,6 @@ public class FceSerializerTests() : SerializerTestsBase<FceSerializer, FceFile>(
                 Name = "TRRN",
                 Position = new Vector3(0f, 0f, -0.5f)
             }
-
         },
         Unk_0x1e04 = new byte[256]
     };

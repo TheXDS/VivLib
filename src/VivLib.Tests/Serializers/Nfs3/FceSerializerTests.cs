@@ -256,7 +256,7 @@ public class FceSerializerTests() : SerializerTestsBase<FceSerializer, FceFile>(
             }
 
         },
-        Unk_0x1e04 = new byte[64]
+        Unk_0x1e04 = new byte[256]
     };
 
     protected override void TestParsedFile(FceFile expected, FceFile actual)
@@ -284,9 +284,29 @@ public class FceSerializerTests() : SerializerTestsBase<FceSerializer, FceFile>(
             Assert.That(actualPart.Origin, Is.EqualTo(expectedPart.Origin));
             Assert.That(actualPart.Vertices, Is.EquivalentTo(expectedPart.Vertices));
             Assert.That(actualPart.Normals, Is.EquivalentTo(expectedPart.Normals));
-            Assert.That(actualPart.Triangles, Is.EquivalentTo(expectedPart.Triangles));
         }
-        foreach (var j in (IEnumerable<string>)[":HLFO", ":HFRE"])
+        foreach ((var tActual, var tExpected) in actualPart.Triangles.Zip(expectedPart.Triangles))
+        {
+            using (Assert.EnterMultipleScope())
+            {
+                Assert.That(tActual.TexturePage, Is.EqualTo(tExpected.TexturePage));
+                Assert.That(tActual.I1, Is.EqualTo(tExpected.I1));
+                Assert.That(tActual.I2, Is.EqualTo(tExpected.I2));
+                Assert.That(tActual.I3, Is.EqualTo(tExpected.I3));
+                Assert.That(tActual.Unk_0x10, Is.EquivalentTo(tExpected.Unk_0x10));
+                Assert.That(tActual.Flags, Is.EqualTo(tExpected.Flags));
+                Assert.That(tActual.U1, Is.EqualTo(tExpected.U1));
+                Assert.That(tActual.U2, Is.EqualTo(tExpected.U2));
+                Assert.That(tActual.U3, Is.EqualTo(tExpected.U3));
+                Assert.That(tActual.V1, Is.EqualTo(tExpected.V1));
+                Assert.That(tActual.V2, Is.EqualTo(tExpected.V2));
+                Assert.That(tActual.V3, Is.EqualTo(tExpected.V3));
+                Assert.That(tActual.Uv1, Is.EqualTo(tExpected.Uv1));
+                Assert.That(tActual.Uv2, Is.EqualTo(tExpected.Uv2));
+                Assert.That(tActual.Uv3, Is.EqualTo(tExpected.Uv3));
+            }
+        }
+        foreach (var j in (IEnumerable<string>)["HLFO", "HFRE", "TRLN", "TRRN"])
         {
             var expectedDummy = expected.GetDummy(j)!;
             var actualDummy = actual.GetDummy(j)!;

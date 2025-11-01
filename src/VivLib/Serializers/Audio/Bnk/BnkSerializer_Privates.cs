@@ -1,4 +1,5 @@
-﻿using System.Runtime.InteropServices;
+﻿using System.Reflection.PortableExecutable;
+using System.Runtime.InteropServices;
 using TheXDS.MCART.Helpers;
 using TheXDS.MCART.Types.Extensions;
 using TheXDS.Vivianne.Models.Audio.Base;
@@ -88,8 +89,23 @@ public partial class BnkSerializer : ISerializer<BnkFile>
             IsAltStream = isAltStream,
             AltStream = header.AltStream is { } altHeader ? ToBnkStream(altHeader, br, $"Alt {id}", true, sampleOffsets) : null,
             Properties = new Dictionary<byte, PtHeaderValue>(header.Values.Select(p => new KeyValuePair<byte, PtHeaderValue>((byte)p.Key, p.Value))),
-            CustomAudioProperties = new Dictionary<byte, PtHeaderValue>(header.AudioValues.Select(p => new KeyValuePair<byte, PtHeaderValue>((byte)p.Key, p.Value)).Where(FilterOutCommonProps))
+            CustomAudioProperties = new Dictionary<byte, PtHeaderValue>(header.AudioValues.Select(p => new KeyValuePair<byte, PtHeaderValue>((byte)p.Key, p.Value)).Where(FilterOutCommonProps)),
+            PostAudioStreamData = GetPostAudioData(br, header, sampleData.Length, sampleOffsets)
         };
+    }
+
+    private static byte[] GetPostAudioData(BinaryReader br, PtHeader header, int audioDataLength, int[] sampleOffsets)
+    {
+        var startOfPostData = header[PtAudioHeaderField.DataOffset] + GetByteCount(br, header);
+        var nextOffset = sampleOffsets
+            .Append((int)br.BaseStream.Length)
+            .Select(p => (int?)p)
+            .Append(header.AltStream?.AudioValues[PtAudioHeaderField.DataOffset].Value)
+            .NotNull()
+            .Ordered()
+            .FirstOrDefault(p => p > header[PtAudioHeaderField.DataOffset]);
+        var blockLength = nextOffset - startOfPostData;
+        return nextOffset > 0 && blockLength > 0 ? br.ReadBytesAt(startOfPostData, blockLength) : [];
     }
 
     private static bool FilterOutCommonProps(KeyValuePair<byte, PtHeaderValue> pair)

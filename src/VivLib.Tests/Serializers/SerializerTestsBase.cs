@@ -31,6 +31,7 @@ public abstract class SerializerTestsBase<TSerializer, TFile>(string streamName,
     {
         var file = serializer.Deserialize(testStream);
         Assert.That(file, Is.InstanceOf<TFile>());
+        TestParsedFile(referenceFile, file);
     }
 
     [Test]
@@ -38,6 +39,7 @@ public abstract class SerializerTestsBase<TSerializer, TFile>(string streamName,
     {
         var file = await serializer.DeserializeAsync(testStream);
         Assert.That(file, Is.InstanceOf<TFile>());
+        TestParsedFile(referenceFile, file);
     }
 
     [Test]
@@ -45,6 +47,7 @@ public abstract class SerializerTestsBase<TSerializer, TFile>(string streamName,
     {
         var file = serializer.Deserialize(testFileContents);
         Assert.That(file, Is.InstanceOf<TFile>());
+        TestParsedFile(referenceFile, file);
     }
 
     [Test]
@@ -52,6 +55,7 @@ public abstract class SerializerTestsBase<TSerializer, TFile>(string streamName,
     {
         var file = await serializer.DeserializeAsync(testFileContents);
         Assert.That(file, Is.InstanceOf<TFile>());
+        TestParsedFile(referenceFile, file);
     }
 
     [Test]

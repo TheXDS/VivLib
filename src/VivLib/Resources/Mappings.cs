@@ -295,8 +295,10 @@ public static class Mappings
     {
         return image switch
         {
+            Image<Argb32> img when img[x, y] is { R: { } r, G: { } g, B: { } b, A: { } a } => [b, g, r, a],
             Image<Rgba32> img when img[x, y] is { R: { } r, G: { } g, B: { } b, A: { } a } => [r, g, b, a],
             Image<Rgb24> img when img[x, y] is { R: { } r, G: { } g, B: { } b } => [r, g, b],
+            Image<Bgr24> img when img[x, y] is { R: { } r, G: { } g, B: { } b } => [r, g, b],
             Image<Bgr565> img when img[x, y] is { } p => Convert16BitColor(p),
             Image<Bgra5551> img when img[x, y] is { } p => Convert16BitColor(p),
             Image<Bgra4444> img when img[x, y] is { } p => Convert16BitColor(p),
@@ -320,7 +322,9 @@ public static class Mappings
         return image switch
         {
             Image<Rgba32> => FshBlobFormat.Argb32,
+            Image<Argb32> => FshBlobFormat.Argb32,
             Image<Rgb24> => FshBlobFormat.Rgb24,
+            Image<Bgr24> => FshBlobFormat.Rgb24,
             Image<Bgr565> => FshBlobFormat.Rgb565,
             Image<Bgra5551> => FshBlobFormat.Argb1555,
             Image<Bgra4444> => FshBlobFormat.Argb4444,

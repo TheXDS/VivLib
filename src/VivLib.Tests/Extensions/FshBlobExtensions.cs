@@ -160,4 +160,81 @@ internal class FshBlobExtensions
             Assert.That(((Image<Bgr24>)result)[1, 1].R, Is.EqualTo(0x65));
         }
     }
+
+    [Test]
+    public void ReplaceWith_replaces_32bit_image()
+    {
+        FshBlob blob = new()
+        {
+            Magic = FshBlobFormat.Rgb24,
+            Height = 2,
+            Width = 2,
+            PixelData = [
+                0x12, 0x34, 0x56, 0x78, 0x9a, 0xbc,
+                0x0f, 0xed, 0xcb, 0xa9, 0x87, 0x65,
+            ]
+        };
+        Image newImage = new Image<Argb32>(2, 2, new Argb32(0x11, 0x22, 0x33));
+        blob.ReplaceWith(newImage);
+
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(blob.Magic, Is.EqualTo(FshBlobFormat.Argb32));
+            Assert.That(blob.PixelData, Is.EquivalentTo([0xff, 0x11, 0x22, 0x33, 0xff, 0x11, 0x22, 0x33, 0xff, 0x11, 0x22, 0x33, 0xff, 0x11, 0x22, 0x33]));
+        }
+    }
+
+    [Test]
+    public void ReplaceWith_replaces_8bit_image()
+    {
+        FshBlob blob = new()
+        {
+            Magic = FshBlobFormat.Indexed8,
+            Height = 2,
+            Width = 2,
+            PixelData = [0x00, 0x01, 0x02, 0x03],
+            Footer = ((Color[])[
+                Color.FromRgba(0x00, 0x11, 0x22, 0xff),
+                Color.FromRgba(0x44, 0x55, 0x66, 0xff),
+                Color.FromRgba(0x88, 0x99, 0xaa, 0xff),
+                Color.FromRgba(0xcc, 0xdd, 0xee, 0xff),
+            ]).ToRawFooter(FshBlobFormat.Palette32)
+        };
+        Image newImage = new Image<Argb32>(2, 2, new Argb32(0x80, 0x80, 0x80));
+        blob.ReplaceWith(newImage);
+
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(blob.Magic, Is.EqualTo(FshBlobFormat.Indexed8));
+            Assert.That(blob.PixelData, Is.EquivalentTo([0x00, 0x00, 0x00, 0x00]));
+            Assert.That(blob.Footer, Has.Length.EqualTo(1040));
+        }
+    }
+
+    [Test]
+    public void ReplaceWith_replaces_8bit_image_2()
+    {
+        FshBlob blob = new()
+        {
+            Magic = FshBlobFormat.Indexed8,
+            Height = 2,
+            Width = 2,
+            PixelData = [0x00, 0x01, 0x02, 0x03],
+            Footer = ((Color[])[
+                Color.FromRgba(0x00, 0x11, 0x22, 0xff),
+                Color.FromRgba(0x44, 0x55, 0x66, 0xff),
+                Color.FromRgba(0x88, 0x99, 0xaa, 0xff),
+                Color.FromRgba(0xcc, 0xdd, 0xee, 0xff),
+            ]).ToRawFooter(FshBlobFormat.Palette32)
+        };
+        Image newImage = new Image<Rgb24>(2, 2, new Rgb24(0x80, 0x80, 0x80));
+        blob.ReplaceWith(newImage);
+
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(blob.Magic, Is.EqualTo(FshBlobFormat.Indexed8));
+            Assert.That(blob.PixelData, Is.EquivalentTo([0x00, 0x00, 0x00, 0x00]));
+            Assert.That(blob.Footer, Has.Length.EqualTo(1040));
+        }
+    }
 }

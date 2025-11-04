@@ -232,14 +232,15 @@ public static class FshBlobExtensions
         // The following footer types generally occupy the whole footer.
         new(FshBlobFooterType.None,            b => b is null || b.Length == 0),
         new(FshBlobFooterType.CarDashboard,    b => b.Length == 104),
-        new(FshBlobFooterType.Padding,         b => b.All(p => p == 0)),
 
         // These footer types allow for more than one attachment to exist.
         new(FshBlobFooterType.MetalBin,        b => b.Length >= 0x50 && b[0..4].SequenceEqual(new byte[] { 0x69, 0x50, 0x00, 0x00 })),
         new(FshBlobFooterType.ColorPalette,    b => b.Length >= 528 && FshBlobPaletteSize.ContainsKey((FshBlobFormat)b[0]) && b.Length >= FshBlobPaletteSize[(FshBlobFormat)b[0]]),
         new(FshBlobFooterType.BlobName,        b => b.Length >= 0x10 && b[0..4].SequenceEqual(new byte[] { 0x70, 0x00, 0x00, 0x00 })),
-    ];
 
+        // This one should be the last one we check for...
+        new(FshBlobFooterType.Padding,         b => b.All(p => p == 0)),
+    ];
 
     private static readonly ReadOnlyDictionary<FshBlobFooterType, int> FooterLengths = new Dictionary<FshBlobFooterType, int> {
         { FshBlobFooterType.MetalBin, 0x50 },

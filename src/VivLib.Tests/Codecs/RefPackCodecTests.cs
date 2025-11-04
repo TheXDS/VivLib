@@ -1,5 +1,4 @@
-﻿using System.Security.Cryptography;
-using TheXDS.Vivianne.Serializers;
+﻿using TheXDS.Vivianne.Serializers;
 
 namespace TheXDS.Vivianne.Codecs;
 

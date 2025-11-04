@@ -2,6 +2,7 @@
 using SixLabors.ImageSharp.PixelFormats;
 using SixLabors.ImageSharp.Processing.Processors.Quantization;
 using System.Collections.ObjectModel;
+using System.Runtime.InteropServices;
 using TheXDS.MCART.Types.Extensions;
 using TheXDS.Vivianne.Codecs.Textures;
 using TheXDS.Vivianne.Models.Fsh;
@@ -120,25 +121,26 @@ public static class FshBlobExtensions
     /// <param name="colors">
     /// Collection of colors that conform the color palette.
     /// </param>
+    /// <param name="paletteFormat">Palette format to use.</param>
     /// <returns>
     /// A byte array of the serialized color palette for the FSH blob.
     /// </returns>
-    public static byte[] ToRawFooter(this IEnumerable<Color> colors)
+    public static byte[] ToRawFooter(this IEnumerable<Color> colors, FshBlobFormat paletteFormat = FshBlobFormat.Palette32)
     {
         using var ms = new MemoryStream();
         using var bw = new BinaryWriter(ms);
         var colorTable = colors.ToArray();
-        foreach (var j in colorTable)
+        if (!PaletteInfos.TryGetValue(paletteFormat, out var info)) throw new InvalidOperationException("A palette format was expected.");
+        foreach (var j in colorTable.ArrayOfSize(256).Take(256))
         {
-            Rgba32 c = j.ToPixel<Rgba32>();
-            bw.Write([c.B, c.G, c.R, c.A]);
+            bw.Write(info.ColorSerializer.Invoke(j));
         }
         var b = new FshBlob()
         {
-            Magic = FshBlobFormat.Palette32,
-            Width = (ushort)colorTable.Length,
+            Magic = paletteFormat,
+            Width = 256,
             Height = 1,
-            PixelData = ms.ToArray()
+            PixelData = ms.ToArray().ArrayOfSize(info.PaletteRawSize)
         };
         using var ms2 = new MemoryStream();
         new FshBlobSerializer().SerializeTo(b, ms2);
@@ -197,6 +199,17 @@ public static class FshBlobExtensions
 
     private record class FooterIdentifierElement(FshBlobFooterType Value, Func<byte[], bool> Predicate);
 
+    private record class PaletteTypeInfo(int PaletteRawSize, Func<Color, byte[]> ColorSerializer);
+
+    private record class PaletteTypeInfo<T>(Func<T, byte[]> PixelSerializer) : PaletteTypeInfo((Marshal.SizeOf<T>() * 256), c => SerializeColor(c, PixelSerializer)) where T : unmanaged, IPixel<T>
+    {
+        private static byte[] SerializeColor(Color color, Func<T, byte[]> callback)
+        {
+            T pixel = color.ToPixel<T>();
+            return callback.Invoke(pixel);
+        }
+    }
+
     private static readonly ReadOnlyDictionary<FshBlobFormat, int> FshBlobPaletteSize = new Dictionary<FshBlobFormat, int>()
     {
         { FshBlobFormat.Palette32,      1040 },
@@ -204,6 +217,15 @@ public static class FshBlobExtensions
         { FshBlobFormat.Palette24Dos,   784 },
         { FshBlobFormat.Palette16Nfs5,  528 },
         { FshBlobFormat.Palette16,      528 },
+    }.AsReadOnly();
+
+    private static readonly ReadOnlyDictionary<FshBlobFormat, PaletteTypeInfo> PaletteInfos = new Dictionary<FshBlobFormat, PaletteTypeInfo>()
+    {
+        { FshBlobFormat.Palette32,      new PaletteTypeInfo<Bgra32>(c => [c.B, c.G, c.R, c.A]) },
+        { FshBlobFormat.Palette24,      new PaletteTypeInfo<Bgr24>(c => [c.B, c.G, c.R]) },
+        { FshBlobFormat.Palette24Dos,   new PaletteTypeInfo<Rgb24>(c => [c.R, c.G, c.B]) },
+        { FshBlobFormat.Palette16,      new PaletteTypeInfo<Bgr565>(c => BitConverter.GetBytes(c.PackedValue)) },
+        { FshBlobFormat.Palette16Nfs5,  new PaletteTypeInfo<Bgra5551>(c => BitConverter.GetBytes(c.PackedValue)) },
     }.AsReadOnly();
 
     private static IEnumerable<FooterIdentifierElement> FshBlobFooterIdentifier { get; } = [
@@ -241,10 +263,13 @@ public static class FshBlobExtensions
     }
 
     /// <summary>
-    /// Enumerates all attachments that may exist on the footer of the <see cref="FshBlob"/>.
+    /// Enumerates all attachments that may exist on the footer of the
+    /// <see cref="FshBlob"/>.
     /// </summary>
-    /// <param name="blob"></param>
-    /// <returns></returns>
+    /// <param name="blob">Blob to enumerate the footers from.</param>
+    /// <returns>
+    /// A collection of all footers found within the <see cref="FshBlob"/>.
+    /// </returns>
     public static IEnumerable<(FshBlobFooterType, byte[])> GetAttachments(this FshBlob blob)
     {
         var footerType = blob.FooterType();

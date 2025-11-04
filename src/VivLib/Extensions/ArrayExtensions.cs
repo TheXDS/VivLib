@@ -36,7 +36,7 @@ public static class ArrayExtensions
     /// <param name="array">Array to enumerate.</param>
     /// <param name="count">Number of elements to return.</param>
     /// <returns>
-    /// An enumeration of all eleents of the array, wrapping around the index
+    /// An enumeration of all elements of the array, wrapping around the index
     /// if the count is larger than the number of elements in the array.
     /// </returns>
     public static IEnumerable<T> Wrapping<T>(this T[] array, int count)

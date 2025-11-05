@@ -41,7 +41,7 @@ public partial class VivSerializer : ISerializer<VivFile>
             FeDataBase.KnownExtensions,
             [".fsh", ".qfs"],
             [".tga"],
-            [".fce"],
+            [".fce", ".geo"],
             [".bnk"],
         ];
         var extension = Path.GetExtension(element.Key).ToLowerInvariant();

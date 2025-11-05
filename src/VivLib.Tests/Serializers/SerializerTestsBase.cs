@@ -5,7 +5,7 @@ public abstract class SerializerTestsBase<TSerializer, TFile>(string streamName,
 {
     private readonly string streamName = streamName;
     private readonly TFile referenceFile = referenceFile;
-    private TSerializer serializer;
+    protected TSerializer serializer;
     private Stream testStream;
     private byte[] testFileContents;
 

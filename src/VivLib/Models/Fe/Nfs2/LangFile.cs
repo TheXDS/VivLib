@@ -1,16 +1,6 @@
 ﻿namespace TheXDS.Vivianne.Models.Fe.Nfs2;
 
-public class LangFileEntry
-{
-    public ushort FontSize { get; set; }
-
-    public ushort Unk_0x02 { get; set; }
-
-    public ushort Unk_0x04 { get; set; }
-
-    public ushort Unk_0x06 { get; set; }
-
-    public string Text { get; set; }
-}
-
+/// <summary>
+/// Represents a Need For Speed II/II SE language file.
+/// </summary>
 public class LangFile : List<LangFileEntry>;

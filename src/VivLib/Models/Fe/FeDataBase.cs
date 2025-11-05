@@ -5,7 +5,8 @@ namespace TheXDS.Vivianne.Models.Fe;
 /// <summary>
 /// Contains useful members for FeData3 and FeData4 files.
 /// </summary>
-public abstract class FeDataBase
+/// <param name="stringEntries">The number of string entries in the FE data block.</param>
+public abstract class FeDataBase(ushort stringEntries)
 {
     /// <summary>
     /// Enumerates all the known fedata file extensions.
@@ -22,7 +23,7 @@ public abstract class FeDataBase
     public bool IsBonus { get; set; }
 
     /// <inheritdoc/>
-    public ushort StringEntries { get; set; }
+    public ushort StringEntries { get; set; } = stringEntries;
 
     /// <inheritdoc/>
     [OffsetTableIndex(0)]

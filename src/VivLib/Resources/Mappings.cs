@@ -7,6 +7,7 @@ using SixLabors.ImageSharp.Formats.Png;
 using SixLabors.ImageSharp.Formats.Tga;
 using SixLabors.ImageSharp.PixelFormats;
 using System.Globalization;
+using System.Runtime.InteropServices;
 using TheXDS.MCART.Types.Extensions;
 using TheXDS.Vivianne.Codecs.Audio;
 using TheXDS.Vivianne.Codecs.Textures;
@@ -32,6 +33,73 @@ namespace TheXDS.Vivianne.Resources;
 /// </summary>
 public static class Mappings
 {
+    /// <summary>
+    /// Defines a footer identifier element used to identify footers in a FSH
+    /// blob.
+    /// </summary>
+    /// <param name="Value">
+    /// Value that indicates the identified footer data.
+    /// </param>
+    /// <param name="Predicate">
+    /// Predicate used to determine if the footer data matches the expected
+    /// format.
+    /// </param>
+    public record class FooterIdentifierElement(FshBlobFooterType Value, Func<byte[], bool> Predicate);
+
+    /// <summary>
+    /// Defines information about a specific palette type.
+    /// </summary>
+    /// <param name="PaletteRawSize">Raw size of the palette.</param>
+    /// <param name="ColorSerializer">
+    /// Function used to serialize a color into a <c>byte</c> array to be
+    /// written into a palette.</param>
+    /// <param name="ColorReader">
+    /// Function used to parse and return a color from a
+    /// <see cref="BinaryReader"/>.
+    /// </param>
+    public record class PaletteTypeInfo(int PaletteRawSize, Func<Color, byte[]> ColorSerializer, Func<BinaryReader, Color> ColorReader);
+
+    /// <summary>
+    /// Implements a strongly-typed version of <see cref="PaletteTypeInfo"/>
+    /// for a specific pixel format.
+    /// </summary>
+    /// <typeparam name="T">
+    /// Pixel format for which this instance represents the serialization
+    /// information.
+    /// </typeparam>
+    /// <param name="PixelSerializer">
+    /// Method used to serialize the pixel data.
+    /// </param>
+    public record class PaletteTypeInfo<T>(Func<T, byte[]> PixelSerializer) : PaletteTypeInfo(Marshal.SizeOf<T>() * 256, c => SerializeColor(c, PixelSerializer), ReadColor) where T : unmanaged, IPixel<T>
+    {
+        private static byte[] SerializeColor(Color color, Func<T, byte[]> callback)
+        {
+            T pixel = color.ToPixel<T>();
+            return callback.Invoke(pixel);
+        }
+
+        private static Color ReadColor(BinaryReader br)
+        {
+            Rgba32 parsed = new();
+            br.MarshalReadStruct<T>().ToRgba32(ref parsed);
+            return new Color(parsed);
+        }
+    }
+    
+    /// <summary>
+    /// Maps a <see cref="FshBlobFormat"/> value to a corresponding
+    /// <see cref="PaletteTypeInfo"/> instance that contains information about
+    /// how to serialize and deserialize palette data for the specified format.
+    /// </summary>
+    public static readonly IReadOnlyDictionary<FshBlobFormat, PaletteTypeInfo> PaletteInfos = new Dictionary<FshBlobFormat, PaletteTypeInfo>()
+    {
+        { FshBlobFormat.Palette32,      new PaletteTypeInfo<Bgra32>(c => [c.B, c.G, c.R, c.A]) },
+        { FshBlobFormat.Palette24,      new PaletteTypeInfo<Bgr24>(c => [c.B, c.G, c.R]) },
+        { FshBlobFormat.Palette24Dos,   new PaletteTypeInfo<Rgb24>(c => [c.R, c.G, c.B]) },
+        { FshBlobFormat.Palette16,      new PaletteTypeInfo<Bgr565>(c => BitConverter.GetBytes(c.PackedValue)) },
+        { FshBlobFormat.Palette16Nfs5,  new PaletteTypeInfo<Bgra5551>(c => BitConverter.GetBytes(c.PackedValue)) },
+    }.AsReadOnly();
+
     /// <summary>
     /// Maps a <see cref="FshBlobFormat"/> value to a corresponding label that
     /// describes the FshBlob pixel format.

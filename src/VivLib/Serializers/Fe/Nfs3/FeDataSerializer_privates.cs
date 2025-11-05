@@ -1,4 +1,5 @@
 ﻿using System.Text;
+using TheXDS.Vivianne.Extensions;
 using TheXDS.Vivianne.Models.Fe;
 using TheXDS.Vivianne.Models.Fe.Nfs3;
 
@@ -38,7 +39,7 @@ public partial class FeDataSerializer
 
     private static FeDataHeader CreateHeader(FeData feData) => FeDataHeader.Empty with
     {
-        CarId = Encoding.Latin1.GetBytes(feData.CarId),
+        CarId = Encoding.Latin1.GetBytes(feData.CarId).ArrayOfSize(4),
         IsBonus = feData.IsBonus ? (ushort)1 : (ushort)0,
         AvailableToAi = feData.AvailableToAi ? (ushort)1 : (ushort)0,
         CarClass = (ushort)feData.VehicleClass,

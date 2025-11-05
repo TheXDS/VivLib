@@ -5,7 +5,7 @@ namespace TheXDS.Vivianne.Models.Fe.Nfs3;
 /// <summary>
 /// Represents a block of car information (FeData) for Need For Speed 3.
 /// </summary>
-public class FeData : FeDataBase, IFeData
+public class FeData() : FeDataBase(40), IFeData
 {
     #region Unknown values
 

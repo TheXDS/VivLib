@@ -1,12 +1,11 @@
 ﻿using TheXDS.Vivianne.Attributes;
-using TheXDS.Vivianne.Models.Fe;
 
 namespace TheXDS.Vivianne.Models.Fe.Nfs4;
 
 /// <summary>
 /// Represents a block of car information (FeData) for Need For Speed 4.
 /// </summary>
-public class FeData : FeDataBase, IFeData
+public class FeData() : FeDataBase(41), IFeData
 {
     /// <summary>
     /// Represents the magic header for a valid NFS4 FeData file.

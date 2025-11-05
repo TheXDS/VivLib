@@ -4,7 +4,7 @@ using TheXDS.Vivianne.Models.Fsh;
 
 namespace TheXDS.Vivianne.Extensions;
 
-internal class FshBlobExtensions
+internal class FshBlobExtensionsTests
 {
     [Test]
     public void ToImage_returns_null_for_unsupported_FshBlob_format()
@@ -69,6 +69,71 @@ internal class FshBlobExtensions
             Assert.That(((Image<Bgra32>)result)[1, 0].Bgra, Is.EqualTo(0xff445566));
             Assert.That(((Image<Bgra32>)result)[0, 1].Bgra, Is.EqualTo(0xff8899aa));
             Assert.That(((Image<Bgra32>)result)[1, 1].Bgra, Is.EqualTo(0xffccddee));
+        }
+    }
+
+    [Test]
+    public void ToImage_Index8_can_use_injected_palette()
+    {
+        FshBlob blob = new()
+        {
+            Magic = FshBlobFormat.Indexed8,
+            Height = 2,
+            Width = 2,
+            PixelData = [0x00, 0x01, 0x02, 0x03],
+            Footer = []
+        };
+        var result = blob.ToImage([
+            Color.FromRgb(0x00, 0x11, 0x22),
+            Color.FromRgb(0x44, 0x55, 0x66),
+            Color.FromRgb(0x88, 0x99, 0xaa),
+            Color.FromRgb(0xcc, 0xdd, 0xee),
+        ]);
+        Assert.That(result, Is.InstanceOf<Image<Bgra32>>());
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(result.Width, Is.EqualTo(2));
+            Assert.That(result.Height, Is.EqualTo(2));
+            Assert.That(((Image<Bgra32>)result)[0, 0].Bgra, Is.EqualTo(0xff001122));
+            Assert.That(((Image<Bgra32>)result)[1, 0].Bgra, Is.EqualTo(0xff445566));
+            Assert.That(((Image<Bgra32>)result)[0, 1].Bgra, Is.EqualTo(0xff8899aa));
+            Assert.That(((Image<Bgra32>)result)[1, 1].Bgra, Is.EqualTo(0xffccddee));
+        }
+    }
+
+    [Test]
+    public void ToImage_Index8_uses_Web216_palette_by_default()
+    {
+        FshBlob blob = new()
+        {
+            Magic = FshBlobFormat.Indexed8,
+            Height = 4,
+            Width = 4,
+            PixelData = [..Enumerable.Range(0,16).Select(p => (byte)p)],
+            Footer = []
+        };
+        var result = blob.ToImage();
+        Assert.That(result, Is.InstanceOf<Image<Bgra32>>());
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(result.Width, Is.EqualTo(4));
+            Assert.That(result.Height, Is.EqualTo(4));
+            Assert.That(((Image<Bgra32>)result)[0, 0].Bgra, Is.EqualTo(0xff000000));
+            Assert.That(((Image<Bgra32>)result)[1, 0].Bgra, Is.EqualTo(0xff330000));
+            Assert.That(((Image<Bgra32>)result)[2, 0].Bgra, Is.EqualTo(0xff660000));
+            Assert.That(((Image<Bgra32>)result)[3, 0].Bgra, Is.EqualTo(0xff990000));
+            Assert.That(((Image<Bgra32>)result)[0, 1].Bgra, Is.EqualTo(0xffcc0000));
+            Assert.That(((Image<Bgra32>)result)[1, 1].Bgra, Is.EqualTo(0xffff0000));
+            Assert.That(((Image<Bgra32>)result)[2, 1].Bgra, Is.EqualTo(0xff002400));
+            Assert.That(((Image<Bgra32>)result)[3, 1].Bgra, Is.EqualTo(0xff332400));
+            Assert.That(((Image<Bgra32>)result)[0, 2].Bgra, Is.EqualTo(0xff662400));
+            Assert.That(((Image<Bgra32>)result)[1, 2].Bgra, Is.EqualTo(0xff992400));
+            Assert.That(((Image<Bgra32>)result)[2, 2].Bgra, Is.EqualTo(0xffcc2400));
+            Assert.That(((Image<Bgra32>)result)[3, 2].Bgra, Is.EqualTo(0xffff2400));
+            Assert.That(((Image<Bgra32>)result)[0, 3].Bgra, Is.EqualTo(0xff004900));
+            Assert.That(((Image<Bgra32>)result)[1, 3].Bgra, Is.EqualTo(0xff334900));
+            Assert.That(((Image<Bgra32>)result)[2, 3].Bgra, Is.EqualTo(0xff664900));
+            Assert.That(((Image<Bgra32>)result)[3, 3].Bgra, Is.EqualTo(0xff994900));
         }
     }
 

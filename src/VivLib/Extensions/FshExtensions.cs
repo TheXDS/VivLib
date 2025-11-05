@@ -2,6 +2,7 @@
 using System.Diagnostics.CodeAnalysis;
 using TheXDS.MCART.Types.Extensions;
 using TheXDS.Vivianne.Models.Fsh;
+using static TheXDS.Vivianne.Resources.Mappings;
 using St = TheXDS.Vivianne.Resources.Strings.Common;
 
 namespace TheXDS.Vivianne.Extensions;
@@ -27,9 +28,14 @@ public static class FshExtensions
     /// </returns>
     public static Color[]? GetPalette(this FshFile fsh)
     {
-        return fsh.Entries.Values.FirstOrDefault(p => p.Magic == FshBlobFormat.Palette32) is { } palette
-            ? ReadColors(palette.PixelData, palette.Width).ToArray()
-            : null;
+        foreach (var j in fsh.Entries.Values)
+        {
+            if (PaletteInfos.TryGetValue(j.Magic, out var paletteTypeInfo))
+            {
+                return [..ReadColors(j, paletteTypeInfo)];
+            }
+        }
+        return null;
     }
 
     /// <summary>
@@ -74,7 +80,7 @@ public static class FshExtensions
     /// to identify a new GIMX texture inside the FSH file,
     /// <see langword="false"/> otherwise.
     /// </returns>
-    public static bool IsNewGimxIdInvalid(string? newId, FshFile fsh, [NotNullWhen(true)] out string? errorMessage)
+    public static bool IsNewGimxIdInvalid(FshFile fsh, string? newId, [NotNullWhen(true)] out string? errorMessage)
     {
         if (IsGimxIdInvalid(newId, out errorMessage)) return true;
         if (fsh.Entries.ContainsKey(newId!))
@@ -84,24 +90,14 @@ public static class FshExtensions
         return !errorMessage.IsEmpty();
     }
 
-    /// <summary>
-    /// Enumerates a collection of colors that have been loaded from the
-    /// provided raw data.
-    /// </summary>
-    /// <param name="data">Data to read the palette from.</param>
-    /// <param name="paletteSize">Number of elements on the palette.</param>
-    /// <returns>An enumeration of colors.</returns>
-    public static IEnumerable<Color> ReadColors(byte[] data, int paletteSize)
+    private static IEnumerable<Color> ReadColors(FshBlob blob, PaletteTypeInfo info)
     {
-        using var ms = new MemoryStream(data);
+        var paletteSize = blob.Width;
+        using var ms = new MemoryStream(blob.PixelData);
         using var reader = new BinaryReader(ms);
         while (paletteSize-- > 0)
         {
-            var b = reader.ReadByte();
-            var g = reader.ReadByte();
-            var r = reader.ReadByte();
-            var a = reader.ReadByte();
-            yield return Color.FromRgba(r, g, b, a);
+            yield return info.ColorReader.Invoke(reader);
         }
     }
 }

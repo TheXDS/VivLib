@@ -1,4 +1,5 @@
 ﻿using System.Text;
+using TheXDS.Vivianne.Extensions;
 using TheXDS.Vivianne.Models.Fe.Nfs4;
 
 namespace TheXDS.Vivianne.Serializers.Fe.Nfs4;
@@ -57,7 +58,7 @@ public partial class FeDataSerializer
 
     private static FeDataHeader CreateHeader(FeData feData) => FeDataHeader.Empty with
     {
-        CarId = Encoding.Latin1.GetBytes(feData.CarId),
+        CarId = Encoding.Latin1.GetBytes(feData.CarId).ArrayOfSize(4),
         SerialNumber = feData.SerialNumber,
         PoliceFlag_IsBonus = (byte)(((byte)feData.PoliceFlag) | (byte)(feData.IsBonus ? 0x1 : 0x0)),
         CarClass = feData.VehicleClass,

@@ -196,39 +196,8 @@ public static class FshBlobExtensions
                 .Select(p => Color.FromRgb(p, p, p));
         }
 
-        return [.. GetColors().ToArray(), .. GetGrayscale()];
+        return [.. GetColors(), .. GetGrayscale()];
     }
-
-    private record class FooterIdentifierElement(FshBlobFooterType Value, Func<byte[], bool> Predicate);
-
-    private record class PaletteTypeInfo(int PaletteRawSize, Func<Color, byte[]> ColorSerializer);
-
-    private record class PaletteTypeInfo<T>(Func<T, byte[]> PixelSerializer) : PaletteTypeInfo((Marshal.SizeOf<T>() * 256), c => SerializeColor(c, PixelSerializer)) where T : unmanaged, IPixel<T>
-    {
-        private static byte[] SerializeColor(Color color, Func<T, byte[]> callback)
-        {
-            T pixel = color.ToPixel<T>();
-            return callback.Invoke(pixel);
-        }
-    }
-
-    private static readonly ReadOnlyDictionary<FshBlobFormat, int> FshBlobPaletteSize = new Dictionary<FshBlobFormat, int>()
-    {
-        { FshBlobFormat.Palette32,      1040 },
-        { FshBlobFormat.Palette24,      784 },
-        { FshBlobFormat.Palette24Dos,   784 },
-        { FshBlobFormat.Palette16Nfs5,  528 },
-        { FshBlobFormat.Palette16,      528 },
-    }.AsReadOnly();
-
-    private static readonly ReadOnlyDictionary<FshBlobFormat, PaletteTypeInfo> PaletteInfos = new Dictionary<FshBlobFormat, PaletteTypeInfo>()
-    {
-        { FshBlobFormat.Palette32,      new PaletteTypeInfo<Bgra32>(c => [c.B, c.G, c.R, c.A]) },
-        { FshBlobFormat.Palette24,      new PaletteTypeInfo<Bgr24>(c => [c.B, c.G, c.R]) },
-        { FshBlobFormat.Palette24Dos,   new PaletteTypeInfo<Rgb24>(c => [c.R, c.G, c.B]) },
-        { FshBlobFormat.Palette16,      new PaletteTypeInfo<Bgr565>(c => BitConverter.GetBytes(c.PackedValue)) },
-        { FshBlobFormat.Palette16Nfs5,  new PaletteTypeInfo<Bgra5551>(c => BitConverter.GetBytes(c.PackedValue)) },
-    }.AsReadOnly();
 
     private static IEnumerable<FooterIdentifierElement> FshBlobFooterIdentifier { get; } = [
         // The following footer types generally occupy the whole footer.
@@ -237,7 +206,7 @@ public static class FshBlobExtensions
 
         // These footer types allow for more than one attachment to exist.
         new(FshBlobFooterType.MetalBin,        b => b.Length >= 0x50 && b[0..4].SequenceEqual(new byte[] { 0x69, 0x50, 0x00, 0x00 })),
-        new(FshBlobFooterType.ColorPalette,    b => b.Length >= 528 && FshBlobPaletteSize.ContainsKey((FshBlobFormat)b[0]) && b.Length >= FshBlobPaletteSize[(FshBlobFormat)b[0]]),
+        new(FshBlobFooterType.ColorPalette,    b => PaletteInfos.ContainsKey((FshBlobFormat)b[0]) && b.Length >= PaletteInfos[(FshBlobFormat)b[0]].PaletteRawSize + 16),
         new(FshBlobFooterType.BlobName,        b => b.Length >= 0x10 && b[0..4].SequenceEqual(new byte[] { 0x70, 0x00, 0x00, 0x00 })),
 
         // This one should be the last one we check for...

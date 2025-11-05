@@ -52,6 +52,7 @@ public static class VivExtensions
             {
                 return ((IOutSerializer<Models.Fe.Nfs4.FeData>)new Serializers.Fe.Nfs4.FeDataSerializer()).Deserialize(feData).CarName;
             }
+            // No easy way of making sure that it's a valid NFS3 FeData, so we'll rely on Exception logic... Just this once.
             return ((IOutSerializer<Models.Fe.Nfs3.FeData>)new Serializers.Fe.Nfs3.FeDataSerializer()).Deserialize(feData).CarName;
         }
         catch (Exception ex)

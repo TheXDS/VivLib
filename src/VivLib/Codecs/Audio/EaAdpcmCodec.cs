@@ -1,7 +1,6 @@
 ﻿using System.Runtime.InteropServices;
 using TheXDS.MCART.Math;
 using TheXDS.MCART.Types.Extensions;
-using TheXDS.Vivianne.Misc;
 using TheXDS.Vivianne.Serializers.Audio;
 using TheXDS.Vivianne.Serializers.Audio.Mus;
 
@@ -35,6 +34,220 @@ public class EaAdpcmCodec : IAudioCodec
         0xFFFFFFFD,
         0xFFFFFFFC
     ];
+
+    /// <summary>
+    /// Creates a new instance of the <see cref="EaAdpcmCodec"/> class.
+    /// </summary>
+    /// <returns></returns>
+    public static EaAdpcmCodec Create() => new();
+
+    /// <inheritdoc/>
+    public byte[] Decode(byte[] sourceBytes, PtHeader header) => header[PtAudioHeaderField.Channels].Value switch
+    {
+        2 => DecompressStereo(sourceBytes),
+        _ => throw new NotSupportedException($"Unsupported channel count: {header[PtAudioHeaderField.Channels]}"),
+    };
+
+    /// <inheritdoc/>
+    public byte[] Encode(byte[] sourceBytes, PtHeader header)
+    {
+        return header[PtAudioHeaderField.Channels].Value switch
+        {
+            2 => EncodeStereo(sourceBytes),
+            _ => throw new NotSupportedException($"Unsupported channel count: {header[PtAudioHeaderField.Channels]}"),
+        };
+    }
+
+    private static byte[] EncodeStereo(byte[] sourceBytes)
+    {
+        // Unpack interleaved 16-bit PCM (L,R,L,R,...) into shorts
+        int totalFrames = sourceBytes.Length / 4;
+        short[] pcm = new short[totalFrames * 2];
+        Buffer.BlockCopy(sourceBytes, 0, pcm, 0, totalFrames * 4);
+
+        // Prepare header: OutSize = total output samples per channel
+        var chunkHeader = new EaAdpcmStereoChunkHeader
+        {
+            OutSize = totalFrames,
+            LeftChannel = new EaAdpcmInitialState { CurrentSample = 0, PreviousSample = 0 },
+            RightChannel = new EaAdpcmInitialState { CurrentSample = 0, PreviousSample = 0 },
+        };
+
+        using var ms = new MemoryStream();
+        using var bw = new BinaryWriter(ms);
+        bw.MarshalWriteStruct(chunkHeader);
+
+        // Encoder state
+        int lPrevL = chunkHeader.LeftChannel.PreviousSample;
+        int lCurL = chunkHeader.LeftChannel.CurrentSample;
+        int lPrevR = chunkHeader.RightChannel.PreviousSample;
+        int lCurR = chunkHeader.RightChannel.CurrentSample;
+
+        const int SubBlockSamples = 0x1C; // 28 samples per sub-block
+
+        for (int baseFrame = 0; baseFrame < totalFrames; baseFrame += SubBlockSamples)
+        {
+            int count = Math.Min(SubBlockSamples, totalFrames - baseFrame);
+
+            // Pick predictor and shift for Left channel
+            (int predL, int dL) = ChoosePredictorAndShift(pcm, baseFrame, count, true, lPrevL, lCurL);
+            // Pick predictor and shift for Right channel
+            (int predR, int dR) = ChoosePredictorAndShift(pcm, baseFrame, count, false, lPrevR, lCurR);
+
+            // Write control bytes
+            byte predictors = (byte)((predL << 4) | (predR & 0x0F));
+            byte shifts = (byte)((((dL - 8) & 0x0F) << 4) | ((dR - 8) & 0x0F));
+            bw.Write(predictors);
+            bw.Write(shifts);
+
+            int c1L = (int)EATable[predL];
+            int c2L = (int)EATable[predL + 4];
+            int c1R = (int)EATable[predR];
+            int c2R = (int)EATable[predR + 4];
+            int stepL = 1 << (28 - dL);
+            int stepR = 1 << (28 - dR);
+
+            for (int i = 0; i < count; i++)
+            {
+                int idx = (baseFrame + i) * 2;
+                int xL = pcm[idx + 0];
+                int xR = pcm[idx + 1];
+
+                // Target in 8.8 fixed-point domain
+                long targetL = ((long)xL << 8) - ((long)lCurL * c1L + (long)lPrevL * c2L);
+                long targetR = ((long)xR << 8) - ((long)lCurR * c1R + (long)lPrevR * c2R);
+
+                int nL = QuantizeNibble(targetL, stepL);
+                int nR = QuantizeNibble(targetR, stepR);
+
+                // Pack and write
+                byte packed = (byte)(((nL & 0x0F) << 4) | (nR & 0x0F));
+                bw.Write(packed);
+
+                // Reconstruct and update states
+                long reconL = ((long)(SignExtendNibble(nL) * stepL) + (long)lCurL * c1L + (long)lPrevL * c2L + 0x80L) >> 8;
+                long reconR = ((long)(SignExtendNibble(nR) * stepR) + (long)lCurR * c1R + (long)lPrevR * c2R + 0x80L) >> 8;
+
+                short yL = Clip16BitSample(reconL);
+                short yR = Clip16BitSample(reconR);
+
+                lPrevL = lCurL;
+                lCurL = yL;
+                lPrevR = lCurR;
+                lCurR = yR;
+            }
+        }
+
+        return ms.ToArray();
+    }
+
+    private static (int predictorIndex, int d) ChoosePredictorAndShift(short[] pcm, int baseFrame, int count, bool leftChannel, int prevSample, int curSample)
+    {
+        int bestPred = 0;
+        int bestD = 23;
+        long bestErr = long.MaxValue;
+
+        for (int pred = 0; pred <= 3; pred++)
+        {
+            int c1 = (int)EATable[pred];
+            int c2 = (int)EATable[pred + 4];
+
+            // Estimate max absolute target to fit in [-8..7]
+            long maxAbsTarget = 0;
+            int tPrev = prevSample;
+            int tCur = curSample;
+            for (int i = 0; i < count; i++)
+            {
+                int idx = (baseFrame + i) * 2 + (leftChannel ? 0 : 1);
+                int x = pcm[idx];
+                long target = ((long)x << 8) - ((long)tCur * c1 + (long)tPrev * c2);
+                long absT = Math.Abs(target);
+                if (absT > maxAbsTarget) maxAbsTarget = absT;
+
+                // Rough simulate with a conservative large step to avoid overflow
+                int stepTmp = 1 << (28 - 8); // d = 8 (largest step)
+                int n = QuantizeNibble(target, stepTmp);
+                long recon = ((long)(SignExtendNibble(n) * stepTmp) + (long)tCur * c1 + (long)tPrev * c2 + 0x80L) >> 8;
+                short y = Clip16BitSample(recon);
+                tPrev = tCur;
+                tCur = y;
+            }
+
+            // Compute d from maxAbsTarget ensuring |nibble| <= 7
+            int d = ComputeShiftFromTarget(maxAbsTarget);
+
+            // Evaluate error with this (pred,d)
+            long err = 0;
+            int sPrev = prevSample;
+            int sCur = curSample;
+            int step = 1 << (28 - d);
+            for (int i = 0; i < count; i++)
+            {
+                int idx = (baseFrame + i) * 2 + (leftChannel ? 0 : 1);
+                int x = pcm[idx];
+                long target = ((long)x << 8) - ((long)sCur * c1 + (long)sPrev * c2);
+                int n = QuantizeNibble(target, step);
+                long recon = ((long)(SignExtendNibble(n) * step) + (long)sCur * c1 + (long)sPrev * c2 + 0x80L) >> 8;
+                short y = Clip16BitSample(recon);
+                long e = (long)x - y;
+                err += e * e;
+                sPrev = sCur;
+                sCur = y;
+                if (err >= bestErr) break;
+            }
+
+            if (err < bestErr)
+            {
+                bestErr = err;
+                bestPred = pred;
+                bestD = d;
+            }
+        }
+
+        return (bestPred, bestD);
+    }
+
+    private static int ComputeShiftFromTarget(long maxAbsTarget)
+    {
+        // Ensure max |n| <= 7 where n = round(target / step), step = 1 << (28 - d)
+        // => step >= maxAbsTarget / 7
+        if (maxAbsTarget <= 0) return 23; // smallest step for quiet blocks
+        long required = maxAbsTarget / 7 + 1; // ceiling
+        int bits = CeilLog2(required);
+        int d = 28 - bits;
+        if (d < 8) d = 8;
+        if (d > 23) d = 23;
+        return d;
+    }
+
+    private static int CeilLog2(long x)
+    {
+        if (x <= 1) return 0;
+        int n = 0;
+        long v = x - 1;
+        while (v > 0)
+        {
+            n++;
+            v >>= 1;
+        }
+        return n;
+    }
+
+    private static int QuantizeNibble(long target, int step)
+    {
+        long q = target >= 0 ? (target + (step >> 1)) / step : (target - (step >> 1)) / step;
+        if (q < -8) q = -8;
+        if (q > 7) q = 7;
+        // Store as 4-bit two's complement
+        return (int)(q & 0x0F);
+    }
+
+    private static int SignExtendNibble(int n)
+    {
+        // Interpret 4-bit as signed [-8..7]
+        n &= 0x0F;
+        return (n << 28) >> 28;
+    }
 
     private static int HINIBBLE(byte byteValue)
     {
@@ -116,188 +329,20 @@ public class EaAdpcmCodec : IAudioCodec
                 bInput = inputBuffer[i++];
                 int left = HINIBBLE(bInput);
                 int right = LONIBBLE(bInput);
-
-                // Apply shift
                 left = left << 0x1C >> dleft;
                 right = right << 0x1C >> dright;
-
-                // Calculate new samples with predictor coefficients
                 long leftSample = (left + (lCurSampleLeft * c1left) + (lPrevSampleLeft * c2left) + 0x80L) >> 8;
                 long rightSample = (right + (lCurSampleRight * c1right) + (lPrevSampleRight * c2right) + 0x80L) >> 8;
-
                 leftSample = Clip16BitSample(leftSample);
                 rightSample = Clip16BitSample(rightSample);
-
-                // Update previous and current samples
                 lPrevSampleLeft = lCurSampleLeft;
                 lCurSampleLeft = (int)leftSample;
-
                 lPrevSampleRight = lCurSampleRight;
                 lCurSampleRight = (int)rightSample;
-
-                // Add the stereo sample to the output
                 outputList.Add((short)lCurSampleLeft);
                 outputList.Add((short)lCurSampleRight);
             }
         }
         return MemoryMarshal.AsBytes(new ReadOnlySpan<short>([.. outputList]));
-    }
-
-    private static byte[] Encode(short[] pcmSamples, int samplesPerBlock = 28)
-    {
-        using var ms = new MemoryStream();
-        using var bw = new BinaryWriter(ms);
-
-        for (int i = 0; i < pcmSamples.Length; i += samplesPerBlock * 2)
-        {
-            var blockPcm = pcmSamples.Skip(i).Take(samplesPerBlock * 2).ToArray();
-            var (header, compressed) = EncodeBlock(blockPcm);
-            bw.MarshalWriteStruct(header);
-            bw.Write(compressed);
-        }
-
-        return ms.ToArray();
-    }
-
-    private static (EaAdpcmStereoChunkHeader, byte[]) EncodeBlock(short[] pcm)
-    {
-        const int SubBlockSamples = 0x1C;
-        int numSamples = pcm.Length / 2;
-        short[] left = new short[numSamples];
-        short[] right = new short[numSamples];
-        for (int i = 0; i < numSamples; i++)
-        {
-            left[i] = pcm[i * 2];
-            right[i] = pcm[i * 2 + 1];
-        }
-        var compressed = new List<byte>();
-        var initialLeftState = new EaAdpcmInitialState
-        {
-            PreviousSample = left.Length > 0 ? left[0] : (short)0,
-            CurrentSample = left.Length > 1 ? left[1] : (short)0
-        };
-        var initialRightState = new EaAdpcmInitialState
-        {
-            PreviousSample = right.Length > 0 ? right[0] : (short)0,
-            CurrentSample = right.Length > 1 ? right[1] : (short)0
-        };
-        var leftState = new EaAdpcmInitialState
-        {
-            PreviousSample = initialLeftState.PreviousSample,
-            CurrentSample = initialLeftState.CurrentSample
-        };
-        var rightState = new EaAdpcmInitialState
-        {
-            PreviousSample = initialRightState.PreviousSample,
-            CurrentSample = initialRightState.CurrentSample
-        };
-        for (int offset = 0; offset < numSamples; offset += SubBlockSamples)
-        {
-            int remaining = Math.Min(SubBlockSamples, numSamples - offset);
-            short[] leftSubPcm = new short[2 + SubBlockSamples];
-            short[] rightSubPcm = new short[2 + SubBlockSamples];
-            leftSubPcm[0] = leftState.PreviousSample;
-            leftSubPcm[1] = leftState.CurrentSample;
-            rightSubPcm[0] = rightState.PreviousSample;
-            rightSubPcm[1] = rightState.CurrentSample;
-            for (int i = 0; i < remaining; i++)
-            {
-                leftSubPcm[2 + i] = left[offset + i];
-                rightSubPcm[2 + i] = right[offset + i];
-            }
-            if (remaining < SubBlockSamples)
-            {
-                short lastL = left[offset + remaining - 1];
-                short lastR = right[offset + remaining - 1];
-                for (int i = remaining; i < SubBlockSamples; i++)
-                {
-                    leftSubPcm[2 + i] = lastL;
-                    rightSubPcm[2 + i] = lastR;
-                }
-            }
-            var (lPredictor, lShift, lNibbles, lNewState) = EncodeChannel(leftSubPcm);
-            var (rPredictor, rShift, rNibbles, rNewState) = EncodeChannel(rightSubPcm);
-            compressed.Add((byte)((lPredictor << 4) | (rPredictor & 0x0F)));
-            compressed.Add((byte)(((lShift - 8) << 4) | ((rShift - 8) & 0x0F)));
-            int nibCount = Math.Min(SubBlockSamples, Math.Min(lNibbles.Length, rNibbles.Length));
-            for (int i = 0; i < nibCount; i++)
-                compressed.Add((byte)((lNibbles[i] << 4) | (rNibbles[i] & 0x0F)));
-            leftState = lNewState;
-            rightState = rNewState;
-        }
-        var header = new EaAdpcmStereoChunkHeader
-        {
-            OutSize = (ushort)numSamples,
-            LeftChannel = initialLeftState,
-            RightChannel = initialRightState
-        };
-        return (header, compressed.ToArray());
-    }
-
-    private static (int predictor, int shift, byte[] nibbles, EaAdpcmInitialState state) EncodeChannel(short[] pcm)
-    {
-        int bestPredictor = 0;
-        int bestShift = 0;
-        long bestError = long.MaxValue;
-        byte[] bestNibbles = [];
-        EaAdpcmInitialState bestState = default;
-
-        for (int predictor = 0; predictor < 16; predictor++)
-        {
-            int c1 = (int)EATable[predictor];
-            int c2 = (int)EATable[predictor + 4];
-
-            for (int dshift = 8; dshift <= 15; dshift++)
-            {
-                var nibbles = new byte[Math.Max(0, pcm.Length - 2)];
-                int prev = pcm[0];
-                int curr = pcm[1];
-                long err = 0;
-                for (int i = 2; i < pcm.Length; i++)
-                {
-                    int delta = (pcm[i] << 8) - ((c1 * curr) + (c2 * prev));
-                    int quantized = (int)(((long)delta << dshift) >> 28);
-                    quantized = Math.Clamp(quantized, -8, 7);
-                    int reconstructed = (int)((((long)quantized << 28) >> dshift) + ((c1 * curr) + (c2 * prev)) + 0x80) >> 8;
-                    err += Math.Abs(pcm[i] - reconstructed);
-                    prev = curr;
-                    curr = reconstructed;
-                    nibbles[i - 2] = (byte)(quantized & 0xF);
-                }
-                if (err < bestError)
-                {
-                    bestError = err;
-                    bestPredictor = predictor;
-                    bestShift = dshift;
-                    bestNibbles = nibbles;
-                    bestState = new EaAdpcmInitialState
-                    {
-                        PreviousSample = (short)prev,
-                        CurrentSample = (short)curr
-                    };
-                }
-            }
-        }
-
-        return (bestPredictor, bestShift, bestNibbles, bestState);
-    }
-
-    /// <summary>
-    /// Creates a new instance of the <see cref="EaAdpcmCodec"/> class.
-    /// </summary>
-    /// <returns></returns>
-    public static EaAdpcmCodec Create() => new();
-
-    /// <inheritdoc/>
-    public byte[] Decode(byte[] sourceBytes, PtHeader header) => header[PtAudioHeaderField.Channels].Value switch
-    {
-        2 => DecompressStereo(sourceBytes),
-        _ => throw new NotSupportedException($"Unsupported channel count: {header[PtAudioHeaderField.Channels]}"),
-    };
-
-    /// <inheritdoc/>
-    public byte[] Encode(byte[] sourceBytes, PtHeader header)
-    {
-        return Encode(CommonHelpers.MapToInt16(sourceBytes));
     }
 }

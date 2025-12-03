@@ -20,37 +20,39 @@ This differs from the [OpenNFS Project](https://github.com/OpenNFS/LibOpenNFS) i
 ### File (de)serialization
 VivLib can read and write the following file formats:
 
-File format | Read | Write | Notes
------------ | :-: | :-: | ---
-`.VIV` | ✔️ | ✔️
-`.FSH`, `.QFS` | ✔️ | ✔️ | Currently, only *RefPack* compression is supported
-`.ASF` | ✔️ | ❌
-`.LIN`, `.MAP`, `.MUS` | ✔️ | ❌
-`.BNK` | ✔️ | ✔️[^1] [^2] | Some NFS2 BNKs fail to load properly
+File format            | Read | Write
+---------------------- | :--: | :-:
+`.VIV`                 |  ✔️  |  ✔️
+`.FSH`, `.QFS`         |  ✔️  |  ✔️[^1]
+`.ASF`                 |  ✔️  |  ❌
+`.LIN`, `.MAP`, `.MUS` |  ✔️  |  ❌
+`.BNK`                 |  ✔️  |  ✔️[^2] [^3]
 
 #### Need For Speed 2 Specific
-File format | Read | Write
------------ | :-: | :-:
-`.GEO` | ✔️ | ✔️[^1]
-`.DAT` car perf | ✔️ | ✔️[^1]
+File format     | Read | Write
+--------------- | :--: | :-:
+`.GEO`          |  ✔️  | ✔️[^2]
+`.DAT` car perf |  ✔️  | ✔️[^2]
 
 #### Need For Speed 3 Specific
-File format | Read | Write 
------------ | :-: | :-:
-`.FCE` | ✔️ | ✔️
-Front-End car data (`.BRI`, `.ENG`, etc.) | ✔️ | ✔️
-`DASH.QFS`-specific structures | ✔️ | ✔️
-`.TXT` car perf | ✔️ | ✔️
+File format                               | Read | Write
+----------------------------------------- | :--: | :-:
+`.FCE`                                    |  ✔️  | ✔️
+Front-End car data (`.BRI`, `.ENG`, etc.) |  ✔️  | ✔️
+`DASH.QFS`-specific structures            |  ✔️  | ✔️
+`.TXT` car perf                           |  ✔️  | ✔️
 
 #### Need For Speed 4 Specific
-File format | Read | Write 
------------ | :-: | :-:
-`.FCE` | ✔️ | ✔️
-Front-End car data (`.BRI`, `.ENG`, etc.) | ✔️ | ✔️
-`.TXT` car perf | ✔️ | ✔️
+File format                               | Read | Write
+----------------------------------------- | :--: | :-:
+`.FCE`                                    |  ✔️  | ✔️
+Front-End car data (`.BRI`, `.ENG`, etc.) |  ✔️  | ✔️
+`.TXT` car perf                           |  ✔️  | ✔️
 
-[^1]: Write support is experimental
-[^2]: Partial support for the file's features
+[^1]: Currently, only *RefPack* compression is supported
+[^2]: Write support is experimental
+[^3]: Partial support for the file's features
+
 
 ### File-specific features
 Below you can find some file-specific highlights into features supported by *VivLib*. Other supported file formats not mentioned in this list can, in general, be sumarized as supporting read and modify all currently known data present in the file.
@@ -76,7 +78,7 @@ Below you can find some file-specific highlights into features supported by *Viv
 - FCE center
 - Generate damaged model for NFS4
 - FCE3/FCE4/FCE4m conversion with part auto-renaming
-- FCE cleanup tooling[^3]
+- FCE cleanup tooling[^4]
 
 #### BNK
 - Read PCM/EA ADPCM data
@@ -88,7 +90,7 @@ Below you can find some file-specific highlights into features supported by *Viv
 - Render looping section to `.WAV`
 - BNK post-header/post-stream arbitrary data support
 
-[^3]: This feature is a *Work In Progress* that is currently under development.
+[^4]: This feature is a *Work In Progress* that is currently under development.
 
 ## Building VivLib
 To compile VivLib, the [SDK for .NET 8.0](https://dotnet.microsoft.com/) or a later version with a targeting pack for .NET 8.0 must be installed on the system.
@@ -112,7 +114,7 @@ dotnet tool install -g dotnet-reportgenerator-globaltool
 ```
 After installing `ReportGenerator`, it will be possible to run the following command:
 ``` sh
-dotnet test ./VivLib.slnx --collect:"XPlat Code Coverage" --results-directory:./Build/Tests ; reportgenerator.exe -reports:./Build/Tests/*/coverage.cobertura.xml -targetdir:./Build/Coverage/
+dotnet test ./VivLib.slnx --collect:"XPlat Code Coverage" --results-directory:./Build/Tests ; reportgenerator -reports:./Build/Tests/*/coverage.cobertura.xml -targetdir:./Build/Coverage/
 ```
 The coverage results will be stored in `./Build/Coverage`
 

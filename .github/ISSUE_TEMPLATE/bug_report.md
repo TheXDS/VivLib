@@ -27,7 +27,7 @@ A clear and concise description of what actually happened.
 
 **Version information:**
  - OS: [e.g. Windows 10 build 19041]
-- VivLib: [e.g. >= 1.0.0-beta.1]
+ - VivLib: [e.g. >= 1.0.0-beta.1]
  - Game version (if error occurs in game, outside of VivLib): [e.g. NFS3, NFS4]
 
 **Additional context**
@@ -35,4 +35,4 @@ A clear and concise description of what actually happened.
 
 [Attach or link (do not paste) any relevant files related to the bug, like FSH/QFS, FCE, TGA, etc.]
 
-[You may attach screenshots if it helps describe your problem.]
+[You may also attach screenshots if it helps describe your problem.]

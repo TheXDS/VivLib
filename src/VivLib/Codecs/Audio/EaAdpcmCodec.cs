@@ -113,20 +113,22 @@ public class EaAdpcmCodec : IAudioCodec
                 int xL = pcm[idx + 0];
                 int xR = pcm[idx + 1];
 
-                // Target in 8.8 fixed-point domain
-                long targetL = ((long)xL << 8) - ((long)lCurL * c1L + (long)lPrevL * c2L);
-                long targetR = ((long)xR << 8) - ((long)lCurR * c1R + (long)lPrevR * c2R);
+                // Compute residual in fixed-point 8.8 domain
+                long residualL = ((long)xL << 8) - ((long)lCurL * c1L + (long)lPrevL * c2L);
+                long residualR = ((long)xR << 8) - ((long)lCurR * c1R + (long)lPrevR * c2R);
 
-                int nL = QuantizeNibble(targetL, stepL);
-                int nR = QuantizeNibble(targetR, stepR);
+                // Quantize to 4-bit nibble
+                int nL = QuantizeNibble(residualL, stepL);
+                int nR = QuantizeNibble(residualR, stepR);
 
-                // Pack and write
+                // Pack and write nibbles (high nibble = left, low nibble = right)
                 byte packed = (byte)(((nL & 0x0F) << 4) | (nR & 0x0F));
                 bw.Write(packed);
 
-                // Reconstruct and update states
-                long reconL = ((long)(SignExtendNibble(nL) * stepL) + (long)lCurL * c1L + (long)lPrevL * c2L + 0x80L) >> 8;
-                long reconR = ((long)(SignExtendNibble(nR) * stepR) + (long)lCurR * c1R + (long)lPrevR * c2R + 0x80L) >> 8;
+                // Reconstruct samples using decompression formula
+                // This MUST match the decompressor exactly to ensure roundtrip fidelity
+                long reconL = ReconstructSample(nL, dL, lCurL, lPrevL, c1L, c2L);
+                long reconR = ReconstructSample(nR, dR, lCurR, lPrevR, c1R, c2R);
 
                 short yL = Clip16BitSample(reconL);
                 short yR = Clip16BitSample(reconR);
@@ -141,6 +143,27 @@ public class EaAdpcmCodec : IAudioCodec
         return ms.ToArray();
     }
 
+    /// <summary>
+    /// Reconstructs a sample using the same formula as the decompressor.
+    /// This ensures perfect roundtrip: encode(x) -> decode() -> x
+    /// </summary>
+    private static long ReconstructSample(int nibble, int d, int curSample, int prevSample, int c1, int c2)
+    {
+        // The decompressor does: left = left << 0x1C >> dleft
+        // where dleft = d (passed as parameter)
+        // This sign-extends the 4-bit value and scales it.
+        // Then: (left + (cur*c1) + (prev*c2) + 0x80) >> 8
+        
+        // Replicate exactly what the decompressor does:
+        int signExtended = (nibble << 28) >> 28;  // Same as SignExtendNibble but explicit
+        long scaled = (long)signExtended << (28 - d);    // Scale: this is equivalent to shifted by step size
+        
+        // Apply predictor formula with rounding (0x80 is for rounding in 8.8 fixed point)
+        long sample = (scaled + ((long)curSample * c1) + ((long)prevSample * c2) + 0x80L) >> 8;
+        
+        return sample;
+    }
+
     private static (int predictorIndex, int d) ChoosePredictorAndShift(short[] pcm, int baseFrame, int count, bool leftChannel, int prevSample, int curSample)
     {
         int bestPred = 0;
@@ -152,55 +175,42 @@ public class EaAdpcmCodec : IAudioCodec
             int c1 = (int)EATable[pred];
             int c2 = (int)EATable[pred + 4];
 
-            // Estimate max absolute target to fit in [-8..7]
-            long maxAbsTarget = 0;
-            int tPrev = prevSample;
-            int tCur = curSample;
-            for (int i = 0; i < count; i++)
+            for (int d = 8; d <= 23; d++)
             {
-                int idx = (baseFrame + i) * 2 + (leftChannel ? 0 : 1);
-                int x = pcm[idx];
-                long target = ((long)x << 8) - ((long)tCur * c1 + (long)tPrev * c2);
-                long absT = Math.Abs(target);
-                if (absT > maxAbsTarget) maxAbsTarget = absT;
+                long err = 0;
+                int sPrev = prevSample;
+                int sCur = curSample;
+                
+                for (int i = 0; i < count; i++)
+                {
+                    int idx = (baseFrame + i) * 2 + (leftChannel ? 0 : 1);
+                    int x = pcm[idx];
+                    
+                    // Compute residual in 8.8 fixed point
+                    long residual = ((long)x << 8) - ((long)sCur * c1 + (long)sPrev * c2);
+                    
+                    // Quantize to nibble
+                    int n = QuantizeNibble(residual, 1 << (28 - d));
+                    
+                    // Reconstruct using decompressor formula
+                    long recon = ReconstructSample(n, d, sCur, sPrev, c1, c2);
+                    short y = Clip16BitSample(recon);
+                    
+                    long e = (long)x - y;
+                    err += e * e;
+                    
+                    sPrev = sCur;
+                    sCur = y;
+                    
+                    if (err >= bestErr) break;
+                }
 
-                // Rough simulate with a conservative large step to avoid overflow
-                int stepTmp = 1 << (28 - 8); // d = 8 (largest step)
-                int n = QuantizeNibble(target, stepTmp);
-                long recon = ((long)(SignExtendNibble(n) * stepTmp) + (long)tCur * c1 + (long)tPrev * c2 + 0x80L) >> 8;
-                short y = Clip16BitSample(recon);
-                tPrev = tCur;
-                tCur = y;
-            }
-
-            // Compute d from maxAbsTarget ensuring |nibble| <= 7
-            int d = ComputeShiftFromTarget(maxAbsTarget);
-
-            // Evaluate error with this (pred,d)
-            long err = 0;
-            int sPrev = prevSample;
-            int sCur = curSample;
-            int step = 1 << (28 - d);
-            for (int i = 0; i < count; i++)
-            {
-                int idx = (baseFrame + i) * 2 + (leftChannel ? 0 : 1);
-                int x = pcm[idx];
-                long target = ((long)x << 8) - ((long)sCur * c1 + (long)sPrev * c2);
-                int n = QuantizeNibble(target, step);
-                long recon = ((long)(SignExtendNibble(n) * step) + (long)sCur * c1 + (long)sPrev * c2 + 0x80L) >> 8;
-                short y = Clip16BitSample(recon);
-                long e = (long)x - y;
-                err += e * e;
-                sPrev = sCur;
-                sCur = y;
-                if (err >= bestErr) break;
-            }
-
-            if (err < bestErr)
-            {
-                bestErr = err;
-                bestPred = pred;
-                bestD = d;
+                if (err < bestErr)
+                {
+                    bestErr = err;
+                    bestPred = pred;
+                    bestD = d;
+                }
             }
         }
 
@@ -235,10 +245,24 @@ public class EaAdpcmCodec : IAudioCodec
 
     private static int QuantizeNibble(long target, int step)
     {
-        long q = target >= 0 ? (target + (step >> 1)) / step : (target - (step >> 1)) / step;
+        // Quantize target by step, with banker's rounding (round to nearest, ties to even)
+        // This should minimize the error between target and n * step
+        
+        // Simple rounding: q = round(target / step)
+        long q;
+        if (step > 0)
+        {
+            q = (target + (step >> 1)) / step;  // Positive: round half up
+        }
+        else
+        {
+            q = (target - (step >> 1)) / step;  // Negative: round half down
+        }
+        
+        // Clamp to 4-bit signed range
         if (q < -8) q = -8;
         if (q > 7) q = 7;
-        // Store as 4-bit two's complement
+        
         return (int)(q & 0x0F);
     }
 

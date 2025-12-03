@@ -1,5 +1,4 @@
-﻿using System.Reflection.PortableExecutable;
-using System.Runtime.InteropServices;
+﻿using System.Runtime.InteropServices;
 using TheXDS.MCART.Helpers;
 using TheXDS.MCART.Types.Extensions;
 using TheXDS.Vivianne.Models.Audio.Base;
@@ -189,7 +188,7 @@ public partial class BnkSerializer : ISerializer<BnkFile>
         return header.Values.Sum(p => p.Value.Length + 2) +
             header.AudioValues.Where(ShouldValueBeIncludedInCount).Sum(p => p.Value.Length + 2) + 1 + /* +1 to account for `0xFD` PT Header audio props marker */
             (header.AltStream is not null ? CalculatePtHeaderSizeNoAdjust(header.AltStream) + 1 : 0) +  /* +1 to account for `0xFE` PT Header alt stream marker */
-            (header.AudioValues[PtAudioHeaderField.DataOffset] != 0 ? 4 : 0) /* Always use 4 byte offsets for data offset */;
+            (header.AudioValues.TryGetValue(PtAudioHeaderField.DataOffset, out var dataOffset) && dataOffset != 0 ? 4 : 0) /* Always use 4 byte offsets for data offset */;
     }
 
     private static bool ShouldValueBeIncludedInCount(KeyValuePair<PtAudioHeaderField, PtHeaderValue> p)

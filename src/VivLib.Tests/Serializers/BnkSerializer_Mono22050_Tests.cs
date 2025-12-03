@@ -1,4 +1,5 @@
 ﻿#pragma warning disable CS1591
+
 using TheXDS.Vivianne.Models.Audio.Base;
 using TheXDS.Vivianne.Models.Audio.Bnk;
 

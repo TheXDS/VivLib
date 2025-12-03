@@ -19,9 +19,12 @@ public partial class MusSerializer
 
         bw.Write("SCHl"u8.ToArray());
         var ptHeader = ToPtHeader(asf);
+
+        ptHeader.AudioValues.Remove(PtAudioHeaderField.DataOffset);
+
         bw.Write(CalculatePtHeaderSize(ptHeader) + Marshal.SizeOf<AsfBlockHeader>() + 5);
         WritePtHeader(bw, ptHeader);
-        WriteAlignmentBytes(8, bw);
+        WriteAlignmentBytes(4, bw);
 
         bw.Write("SCCl"u8.ToArray());
         bw.Write(0x0c);

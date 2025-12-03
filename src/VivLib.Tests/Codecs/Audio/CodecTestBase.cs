@@ -5,7 +5,7 @@ namespace TheXDS.Vivianne.Codecs.Audio;
 
 internal abstract class CodecTestBase<TCodec> where TCodec : notnull, IAudioCodec, new()
 {
-    private const double AcceptableCorrelation = 0.95;
+    private const double AcceptableCorrelation = 0.9999;
 
     private static readonly PtHeader Stereo22050 = new();
 
@@ -15,7 +15,7 @@ internal abstract class CodecTestBase<TCodec> where TCodec : notnull, IAudioCode
     public static void SetUp()
     {
         Stereo22050.AudioValues[PtAudioHeaderField.Channels] = 2;
-        const double freqL = 440.0, freqR = 880.0;
+        const double freqL = 317.0, freqR = 513.0;
         const double durationSec = 1.0;
         double sampleRate = Stereo22050.AudioValues[PtAudioHeaderField.SampleRate].Value;
 

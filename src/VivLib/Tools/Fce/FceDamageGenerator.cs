@@ -22,6 +22,14 @@ public static class FceDamageGenerator
     /// An array of <see cref="Vector3"/> which have been moved around to
     /// generate a damaged mesh.
     /// </returns>
+    /// <remarks>
+    /// The X and Z components of each vector are adjusted so that their
+    /// tendency is to shrink in their respective axis (i.e., positive X and Z
+    /// values are decreased, while negative X and Z values are increased). The
+    /// Y component is adjusted randomly within the specified variation range.
+    /// Also, any vectors that are identical will be moved to the same new position,
+    /// avoiding edge separation and holes in the damaged mesh.
+    /// </remarks>
     public static Vector3[] GenerateDamageMesh(Vector3[] original, float variation = 0.1f)
     {
         if (original is null || original.Length == 0) return [];
@@ -42,7 +50,7 @@ public static class FceDamageGenerator
         return damagedMesh;
     }
 
-    private static float GenerateRandomFloat()
+    internal static float GenerateRandomFloat()
     {
         uint intValue = BitConverter.ToUInt32(RandomNumberGenerator.GetBytes(sizeof(float)), 0);
         return intValue / (float)uint.MaxValue;

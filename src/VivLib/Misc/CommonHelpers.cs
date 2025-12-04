@@ -10,7 +10,7 @@ public static class CommonHelpers
     /// </summary>
     /// <param name="inputArray">Array to be mapped.</param>
     /// <returns>
-    /// A <c><see cref="byte"/>[]</c>  array mapping the entire span of the
+    /// A <c><see cref="byte"/>[]</c> array mapping the entire span of the
     /// input array.
     /// </returns>
     public static byte[] MapToByte(short[] inputArray)
@@ -25,7 +25,7 @@ public static class CommonHelpers
     /// </summary>
     /// <param name="inputArray">Array to be mapped.</param>
     /// <returns>
-    /// A <c><see cref="byte"/>[]</c>  array mapping the entire span of the
+    /// A <c><see cref="byte"/>[]</c> array mapping the entire span of the
     /// input array.
     /// </returns>
     public static byte[] MapToByte(int[] inputArray)
@@ -40,7 +40,7 @@ public static class CommonHelpers
     /// </summary>
     /// <param name="inputArray">Array to be mapped.</param>
     /// <returns>
-    /// A <c><see cref="byte"/>[]</c>  array mapping the entire span of the
+    /// A <c><see cref="byte"/>[]</c> array mapping the entire span of the
     /// input array.
     /// </returns>
     public static byte[] MapToByte(sbyte[] inputArray)

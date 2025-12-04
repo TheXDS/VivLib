@@ -24,7 +24,7 @@ public class BnkStreamInfoExtractor(bool humanSize) : IEntityInfoExtractor<BnkSt
     public string[] GetInfo(BnkStream value)
     {
         return [.. new string?[]{
-            string.Format(St.BnkNfo_Duration, TimeSpan.FromSeconds((double)value.SampleData.Length / (value.SampleRate * value.BytesPerSample))),
+            string.Format(St.BnkNfo_Duration, TimeSpan.FromSeconds((double)value.SampleData.Length / (value.SampleRate * value.BytesPerSample * value.Channels))),
             string.Format(St.BnkNfo_Samples, value.SampleData.Length / value.BytesPerSample),
             string.Format(St.BnkNfo_Channels, value.Channels),
             string.Format(St.BnkNfo_Format, value.BytesPerSample * 8, Mappings.AudioCodecDescriptions.GetValueOrDefault(value.Compression, "Unknown")),

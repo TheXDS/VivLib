@@ -1,4 +1,6 @@
-﻿using TheXDS.MCART.Helpers;
+﻿using System.Globalization;
+using System.Numerics;
+using TheXDS.MCART.Helpers;
 using TheXDS.MCART.Resources;
 using TheXDS.Vivianne.Misc;
 using TheXDS.Vivianne.Models.Audio.Bnk;
@@ -52,37 +54,26 @@ public static class BnkNormalizer
     /// </exception>
     public static byte[] NormalizeVolume(byte[] data, int bits, double level)
     {
+        if (data is null || data.Length == 0) return [];
         if (!level.IsBetween(0.0, 1.0)) throw Errors.ValueOutOfRange(nameof(level), 0.0, 1.0);
         return bits switch
         {
-            8 => CommonHelpers.MapToByte(NormalizeSByte(CommonHelpers.MaptoSByte(data), level)),
-            16 => CommonHelpers.MapToByte(NormalizeInt16(CommonHelpers.MapToInt16(data), level)),
-            32 => CommonHelpers.MapToByte(NormalizeInt32(CommonHelpers.MapToInt32(data), level)),
+            8 => CommonHelpers.MapToByte(Normalize(CommonHelpers.MaptoSByte(data), level)),
+            16 => CommonHelpers.MapToByte(Normalize(CommonHelpers.MapToInt16(data), level)),
+            32 => CommonHelpers.MapToByte(Normalize(CommonHelpers.MapToInt32(data), level)),
             _ => throw new InvalidOperationException()
         };
     }
 
-    private static int[] NormalizeInt32(int[] data, double level)
+    private static T[] Normalize<T>(T[] data, double level)
+        where T : notnull,
+        ISignedNumber<T>,
+        IMinMaxValue<T>,
+        IConvertible
     {
-        var maxSample = data.Select(Math.Abs).Max();
-        var max = int.MaxValue * level;
+        var maxSample = data.Select(p => p.ToInt64(null)).Select(Math.Abs).Max()!;
+        var max = T.MaxValue.ToDouble(null) * level;
         var multiplier = max / maxSample;
-        return [.. data.Select(p => (int)(p * multiplier))];
-    }
-
-    private static short[] NormalizeInt16(short[] data, double level)
-    {
-        var maxSample = data.Select(Math.Abs).Max();
-        var max = short.MaxValue * level;
-        var multiplier = max / maxSample;
-        return [.. data.Select(p => (short)(p * multiplier))];
-    }
-
-    private static sbyte[] NormalizeSByte(sbyte[] data, double level)
-    {
-        var maxSample = data.Select(Math.Abs).Max();
-        var max = sbyte.MaxValue * level;
-        var multiplier = max / maxSample;
-        return [.. data.Select(p => (sbyte)(p * multiplier))];
+        return [.. data.Select(p => ((IConvertible)(p.ToDouble(null) * multiplier)).ToType(typeof(T), CultureInfo.InvariantCulture)).Cast<T>()];
     }
 }

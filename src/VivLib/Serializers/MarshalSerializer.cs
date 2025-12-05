@@ -1,4 +1,5 @@
-﻿using TheXDS.MCART.Types.Extensions;
+﻿using System.Text;
+using TheXDS.MCART.Types.Extensions;
 
 namespace TheXDS.Vivianne.Serializers;
 
@@ -13,14 +14,14 @@ public class MarshalSerializer<T> : ISerializer<T> where T : struct
     /// <inheritdoc/>
     public T Deserialize(Stream stream)
     {
-        using var br = new BinaryReader(stream);
+        using var br = new BinaryReader(stream, Encoding.Default, true);
         return br.MarshalReadStruct<T>();
     }
 
     /// <inheritdoc/>
     public void SerializeTo(T entity, Stream stream)
     {
-        using var bw = new BinaryWriter(stream);
+        using var bw = new BinaryWriter(stream, Encoding.Default, true);
         bw.MarshalWriteStruct(entity);
     }
 }

@@ -1,69 +1,122 @@
-﻿using System.Globalization;
-using System.Runtime.InteropServices;
-using TheXDS.MCART.Types.Extensions;
+﻿using System.Runtime.InteropServices;
 
-namespace TheXDS.Vivianne.Serializers.Misc
+namespace TheXDS.Vivianne.Serializers.Misc;
+
+/// <summary>
+/// Represents a 32-bit fixed-point decimal number in Q16.16 format.
+/// This format uses 16 bits for the fractional part and 16 bits for the signed integer part.
+/// The Q16.16 format was commonly used in 1990s game engines and applications before
+/// floating-point units were ubiquitous, including games like Doom and Need For Speed II.
+/// </summary>
+[StructLayout(LayoutKind.Sequential, Pack = 1)]
+public struct FixedPointDecimal32(ushort fractionalPart, short integralPart)
 {
     /// <summary>
-    /// Defines a 32-bit fixed point decimal number, where 16 bits of the value
-    /// represent the whole units and the other 16 bits represent the
-    /// fractionary part.
+    /// The 16-bit unsigned fractional part of the fixed-point number.
+    /// Represents values from 0 to 65535, scaled by 2^-16 (1/65536).
     /// </summary>
-    [StructLayout(LayoutKind.Sequential, Pack = 2)]
-    public struct FixedPointDecimal32
+    public ushort FractionalPart = fractionalPart;
+
+    /// <summary>
+    /// The 16-bit signed integral part of the fixed-point number.
+    /// Represents integer values from -32768 to +32767.
+    /// </summary>
+    public short IntegralPart = integralPart;
+
+    /// <summary>
+    /// The scaling factor used for Q16.16 fixed-point arithmetic.
+    /// Equal to 2^16 = 65536.
+    /// </summary>
+    private const double ScalingFactor = 65536.0;
+
+    /// <summary>
+    /// Initializes a new instance of the <see cref="FixedPointDecimal32"/> struct from a float value.
+    /// </summary>
+    /// <param name="value">The floating-point value to convert.</param>
+    public FixedPointDecimal32(float value) : this(ConvertFromDouble(value))
     {
-        /// <summary>
-        /// Defines the fractionary part of the value.
-        /// </summary>
-        public ushort Fraction;
+    }
 
-        /// <summary>
-        /// Defines the whole part of the value.
-        /// </summary>
-        public short Integer;
+    /// <summary>
+    /// Initializes a new instance of the <see cref="FixedPointDecimal32"/> struct from a double value.
+    /// </summary>
+    /// <param name="value">The double-precision floating-point value to convert.</param>
+    public FixedPointDecimal32(double value) : this(ConvertFromDouble(value))
+    {
+    }
 
-        /// <summary>
-        /// Implicitly converts a <see cref="FixedPointDecimal32"/> into a
-        /// <see cref="float"/> value.
-        /// </summary>
-        /// <param name="x">Value to be converted.</param>
-        public static implicit operator float(FixedPointDecimal32 x)
-        {
-            return x.Integer + float.Parse($"0.{x.Fraction}", CultureInfo.InvariantCulture);
-        }
+    /// <summary>
+    /// Helper constructor that takes a tuple from the conversion method.
+    /// </summary>
+    private FixedPointDecimal32((ushort fractional, short integral) parts) 
+        : this(parts.fractional, parts.integral)
+    {
+    }
 
-        /// <summary>
-        /// Implicitly converts a <see cref="FixedPointDecimal32"/> into a
-        /// <see cref="double"/> value.
-        /// </summary>
-        /// <param name="x">Value to be converted.</param>
-        public static implicit operator double(FixedPointDecimal32 x)
-        {
-            return x.Integer + double.Parse($"0.{x.Fraction}", CultureInfo.InvariantCulture);
-        }
+    /// <summary>
+    /// Converts a double value to Q16.16 format components.
+    /// </summary>
+    private static (ushort fractional, short integral) ConvertFromDouble(double value)
+    {
+        // Multiply by the scaling factor to get the raw 32-bit representation
+        int rawValue = (int)Math.Round(value * ScalingFactor);
+        
+        // Extract fractional part (lower 16 bits)
+        ushort fractional = (ushort)(rawValue & 0xFFFF);
+        
+        // Extract integral part (upper 16 bits)
+        short integral = (short)(rawValue >> 16);
+        
+        return (fractional, integral);
+    }
 
-        /// <summary>
-        /// Implicitly converts a <see cref="float"/> into a
-        /// <see cref="FixedPointDecimal32"/> value.
-        /// </summary>
-        /// <param name="x">Value to be converted.</param>
-        public static implicit operator FixedPointDecimal32(float x)
-        {
-            return (double)x;
-        }
+    /// <summary>
+    /// Implicitly converts a <see cref="FixedPointDecimal32"/> to a float.
+    /// </summary>
+    /// <param name="value">The fixed-point value to convert.</param>
+    public static implicit operator float(FixedPointDecimal32 value)
+    {
+        return (float)((double)value);
+    }
 
-        /// <summary>
-        /// Implicitly converts a <see cref="double"/> into a
-        /// <see cref="FixedPointDecimal32"/> value.
-        /// </summary>
-        /// <param name="x">Value to be converted.</param>
-        public static implicit operator FixedPointDecimal32(double x)
-        {
-            return new FixedPointDecimal32()
-            {
-                Integer = (short)Math.Floor(x),
-                Fraction = ushort.Parse($"{(x - Math.Floor(x)).ToString(CultureInfo.InvariantCulture).ChopStart("0.")}000"[..4], CultureInfo.InvariantCulture)
-            };
-        }
+    /// <summary>
+    /// Implicitly converts a <see cref="FixedPointDecimal32"/> to a double.
+    /// </summary>
+    /// <param name="value">The fixed-point value to convert.</param>
+    public static implicit operator double(FixedPointDecimal32 value)
+    {
+        // Reconstruct the 32-bit signed integer
+        int rawValue = (value.IntegralPart << 16) | value.FractionalPart;
+        
+        // Divide by the scaling factor to get the double value
+        return rawValue / ScalingFactor;
+    }
+
+    /// <summary>
+    /// Implicitly converts a float to a <see cref="FixedPointDecimal32"/>.
+    /// </summary>
+    /// <param name="value">The floating-point value to convert.</param>
+    public static implicit operator FixedPointDecimal32(float value)
+    {
+        return new FixedPointDecimal32(value);
+    }
+
+    /// <summary>
+    /// Implicitly converts a double to a <see cref="FixedPointDecimal32"/>.
+    /// </summary>
+    /// <param name="value">The double-precision floating-point value to convert.</param>
+    public static implicit operator FixedPointDecimal32(double value)
+    {
+        return new FixedPointDecimal32(value);
+    }
+
+    /// <summary>
+    /// Returns a string representation of the fixed-point number.
+    /// </summary>
+    /// <returns>A string representation of the numeric value.</returns>
+    public override string ToString()
+    {
+        double doubleValue = this;
+        return doubleValue.ToString();
     }
 }

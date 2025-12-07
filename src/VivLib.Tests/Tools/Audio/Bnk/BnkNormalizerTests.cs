@@ -58,14 +58,17 @@ internal sealed class BnkNormalizerTests
         byte[] data = [0x00, 0x01, 0x02];
         double level = 0.5;
 
-        Assert.That(() => BnkNormalizer.NormalizeVolume(data, 24, level), Throws.TypeOf<InvalidOperationException>());
+        Assert.That(() => BnkNormalizer.NormalizeVolume(data, 55, level), Throws.TypeOf<InvalidOperationException>());
     }
 
-    [Test]
-    public void NormalizeVolume_WithLevelOutOfRange_ThrowsValueOutOfRangeException()
+    [TestCase(-0.000001)]
+    [TestCase(1.000001)]
+    [TestCase(double.NegativeInfinity)]
+    [TestCase(double.PositiveInfinity)]
+    [TestCase(double.NaN)]
+    public void NormalizeVolume_WithLevelOutOfRange_ThrowsValueOutOfRangeException(double invalidLevel)
     {
         byte[] data = [0x00, 0x01];
-        double invalidLevel = -0.1;
 
         Assert.That(() => BnkNormalizer.NormalizeVolume(data, 8, invalidLevel), Throws.TypeOf<ArgumentOutOfRangeException>());
     }

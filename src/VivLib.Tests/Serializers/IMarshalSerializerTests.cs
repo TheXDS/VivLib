@@ -2,7 +2,7 @@ using System.Runtime.InteropServices;
 
 namespace TheXDS.Vivianne.Serializers;
 
-internal class MarshalSerializerTests
+internal class IMarshalSerializerTests
 {
     [StructLayout(LayoutKind.Sequential, Pack = 1)]
     private struct TestStruct(int number, bool flag, byte[] data, string code)
@@ -28,10 +28,10 @@ internal class MarshalSerializerTests
         var serializer = new MarshalSerializer<TestStruct>();
 
         using var ms = new MemoryStream();
-        serializer.SerializeTo(original, ms);
+        ((IInSerializer<TestStruct>)serializer).SerializeTo(original, ms);
 
         ms.Position = 0;
-        var result = serializer.Deserialize(ms);
+        var result = ((IOutSerializer<TestStruct>)serializer).Deserialize(ms);
 
         using (Assert.EnterMultipleScope())
         {
@@ -54,12 +54,12 @@ internal class MarshalSerializerTests
         var serializer = new MarshalSerializer<TestStruct>();
 
         using var ms = new MemoryStream();
-        foreach (var s in structs) serializer.SerializeTo(s, ms);
+        foreach (var s in structs) ((IInSerializer<TestStruct>)serializer).SerializeTo(s, ms);
 
         ms.Position = 0;
         foreach (var expected in structs)
         {
-            var actual = serializer.Deserialize(ms);
+            var actual = ((IOutSerializer<TestStruct>)serializer).Deserialize(ms);
             using (Assert.EnterMultipleScope())
             {
                 Assert.That(actual.Number, Is.EqualTo(expected.Number));

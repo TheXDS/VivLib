@@ -9,6 +9,13 @@ A classic NFS modding library
 </tr>
 </table>
 
+[![codecov](https://codecov.io/gh/TheXDS/VivLib/graph/badge.svg?token=O9e8uRpaXx)](https://codecov.io/gh/TheXDS/VivLib)
+[![Build VivLib](https://github.com/TheXDS/VivLib/actions/workflows/build.yml/badge.svg)](https://github.com/TheXDS/VivLib/actions/workflows/build.yml)
+[![Issues](https://img.shields.io/github/issues/TheXDS/VivLib)](https://github.com/TheXDS/VivLib/issues)
+[![MIT](https://img.shields.io/github/license/TheXDS/VivLib)](https://mit-license.org/)
+[![Ask DeepWiki](https://deepwiki.com/badge.svg)](https://deepwiki.com/TheXDS/VivLib)
+
+
 ## Introduction
 Originally part of the [Vivianne](https://github.com/TheXDS/Vivianne) project, *VivLib* is a lightweight library that provides essential tools and utilities for modding various classic Need For Speed titles. It aims to simplify the modding process by offering a set of reusable components and functions, especially around file (de)serialization, data manipulation, and common modding tasks.
 

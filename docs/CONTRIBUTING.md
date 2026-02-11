@@ -97,7 +97,7 @@ You can use any editor/IDE you want, as long as it supports the version of the .
 - *Boyscoutism* is welcome, as long as it's not excessive (eg. do **NOT** rewrite the entirety of VivLib)
 - Create [`XMLDocs`](https://learn.microsoft.com/en-us/dotnet/csharp/language-reference/xmldoc/) for any public type/member you add. Note that I have somewhat of a strict line length limit of 80 characters per comment line. Try to respect that.
 - Do not add comments in-code unnecessarily. Code should be simple enough where a developer can have an understanding of what's going on without a lot of comments everywhere.
-- If you know something will look weird if a dev were to look at it, then you can add a comment block in-code explaining the reason why something was implemented in a certain way (see [`GeoSerializer_privates.cs`](../main/src/VivLib/Serializers/Geo/GeoSerializer_privates.cs), [`MapSerializer.cs`](../main/src/VivLib/Serializers/Audio/Mus/MapSerializer.cs) and [`BnkSerializer_Privates.cs`](../main/src/VivLib/Serializers/Audio/Bnk/BnkSerializer_Privates.cs) as examples)... Just don't go too crazy with it.  
+- If you know something will look weird if a dev were to look at it, then you can add a comment block in-code explaining the reason why something was implemented in a certain way (see [`GeoSerializer_privates.cs`](../src/VivLib/Serializers/Geo/GeoSerializer_privates.cs), [`MapSerializer.cs`](../src/VivLib/Serializers/Audio/Mus/MapSerializer.cs) and [`BnkSerializer_Privates.cs`](../src/VivLib/Serializers/Audio/Bnk/BnkSerializer_Privates.cs) as examples)... Just don't go too crazy with it.  
 
   Irony and sarcasm are welcome if not excessive nor offensive. We all sometimes need a quick laugh.
 - Include or update unit tests for any code changes.

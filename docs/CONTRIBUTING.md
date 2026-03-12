@@ -75,7 +75,7 @@ If you want to contribute code:
 ## 🧩 Development Setup
 VivLib does not need a complex setup. You can work on any OS supported by .NET.
 You can use any editor/IDE you want, as long as it supports the version of the .NET SDK that VivLib targets.
-> Note: VivLib uses the new `SLNX` format, so most legacy environments might not be able to understand it. If this is the case, do **NOT** push an `.sln` file if one is generated.
+> Note: VivLib uses the new `SLNX` format, so most legacy environments might not be able to understand it. If this is the case, do **NOT** push an `.sln` file if one is generated. You might want to add `*.sln` to your `.gitignore` if it's not already there.
 
 1. Install an [SDK for .NET](https://dotnet.microsoft.com/) if not done so already.
    > VivLib targets `net8.0`, so I would suggest at least that version. A newer SDK is also a valid option, but it would probably require a targeting pack.
@@ -102,6 +102,7 @@ You can use any editor/IDE you want, as long as it supports the version of the .
   Irony and sarcasm are welcome if not excessive nor offensive. We all sometimes need a quick laugh.
 - Include or update unit tests for any code changes.
 - Avoid introducing new dependencies without discussion.
+- When compiling VivLib, you should not introduce any new compiler warnings.
 - Following SOLID is good, but when taken to the extreme it's just non-sensical.
 
 ### Notes on AI usage
@@ -122,6 +123,10 @@ Use SOLID, but responsibly. Do not create absurd levels of abstraction layers ju
 Single responsibility is good. But if stuff is too closely related, then maybe they could be grouped together. Codecs and serializers are a good example. SRP/ISP could have dictated that I should have one interface and class each for reading and for writing. Well, as far as I know, there's only one correct way to serialize an FCE model. Alternate implementations that yield the same results and have the exact same effect would not make any sense, so having an interface just so that I can replace the implementation of the serializer part is unnecessary.
 
 As for dependency injection... Again, if you have the single implementation of something that does what you need, there is not too much harm in not religiously using DI. It goes case-by-case, because we still want to have classes that are testeable, but sometimes a decenty well written coupled class that can be integrationally-tested is better than add a bunch of extra steps to what should be a simple functionality.
+
+Case in point: Some religoiusly (and, allegedly "_clean_") SOLID codebases I've seen have long chains of callbacks for the sake of pure interface segregation and dependency inversion: `(Controller(SetValueTo(10)) -> Use Case(SetValueTo(parameter)) -> Gateway/Presenter(DispatchMessage(SetValueMessage(10)) -> Message(SetValueMessage dispatched with parameter 10) -> Action(When SetValueMessage Received, set Value to Received))` ... What? How about `value = 10`?
+
+There are uses and places for this. VivLib is not necessarily one of them.
 
 <a name="commit-guidelines"></a>
 ## 💬 Commit Guidelines
@@ -157,7 +162,7 @@ If you're unsure about something, open a discussion or issue before coding — I
 # ⚖️ License
 By contributing, you agree that your contributions will be licensed under the same license as the project.
 
-See the [LICENSE](../LICENSE) file for details.
+Make everyone's lawyers happy and see the [LICENSE](../LICENSE) file for details.
 
 <a name="infrequently-asked-questions"></a>
 # ❓ Infrequently Asked Questions
@@ -181,7 +186,7 @@ See the [LICENSE](../LICENSE) file for details.
    No. Even if it's good, no.
 8. **Why did he/she/it/they/thy/thou/etc. leave me?😔**  
    The heart is a tempestuous thing, friend. But, there's love in anyone that's still around you, like your family, your pets, or even that old lonely lady that wants to talk with you all day even if you have stuff to do. But, you have to love yourself before you try to get love back from others.
-9. **Why is it pronounced "Wens-day" if it's written "Wednesday"?**  
+9. **Why is it pronounced "Wenz-day" if it's written "Wednesday"?**  
    As a famed english teacher called Bobby Finn would say: "it's because <ins>that's why</ins>. <sub>you don't see how...</sub>"
 10. **I've seen some of your other projects. Can I get a copy of that cool ASCII mushroom cloud?**  
     Sure.

@@ -17,7 +17,13 @@ internal sealed class BnkNormalizerTests
         byte[] data = CommonHelpers.MapToByte(samples);
         double level = 0.5;
 
-        byte[] result = BnkNormalizer.NormalizeVolume(data, 8, level);
+        var mockStream = new BnkStream()
+        {
+            SampleData = data,
+            BytesPerSample = 1
+        };
+
+        byte[] result = BnkNormalizer.NormalizeVolume(mockStream, level);
         sbyte[] resultSamples = CommonHelpers.MaptoSByte(result);
 
         Assert.That(resultSamples, Has.Length.EqualTo(samples.Length));
@@ -31,7 +37,13 @@ internal sealed class BnkNormalizerTests
         byte[] data = CommonHelpers.MapToByte(samples);
         double level = 0.5;
 
-        byte[] result = BnkNormalizer.NormalizeVolume(data, 16, level);
+        var mockStream = new BnkStream()
+        {
+            SampleData = data,
+            BytesPerSample = 2
+        };
+
+        byte[] result = BnkNormalizer.NormalizeVolume(mockStream, level);
         short[] resultSamples = CommonHelpers.MapToInt16(result);
 
         Assert.That(resultSamples.Length, Is.EqualTo(samples.Length));
@@ -45,7 +57,13 @@ internal sealed class BnkNormalizerTests
         byte[] data = CommonHelpers.MapToByte(samples);
         double level = 0.5;
 
-        byte[] result = BnkNormalizer.NormalizeVolume(data, 32, level);
+        var mockStream = new BnkStream()
+        {
+            SampleData = data,
+            BytesPerSample = 4
+        };
+
+        byte[] result = BnkNormalizer.NormalizeVolume(mockStream, level);
         int[] resultSamples = CommonHelpers.MapToInt32(result);
 
         Assert.That(resultSamples, Has.Length.EqualTo(samples.Length));
@@ -58,7 +76,13 @@ internal sealed class BnkNormalizerTests
         byte[] data = [0x00, 0x01, 0x02];
         double level = 0.5;
 
-        Assert.That(() => BnkNormalizer.NormalizeVolume(data, 55, level), Throws.TypeOf<InvalidOperationException>());
+        var mockStream = new BnkStream()
+        {
+            SampleData = data,
+            BytesPerSample = 55
+        };
+
+        Assert.That(() => BnkNormalizer.NormalizeVolume(mockStream, level), Throws.TypeOf<InvalidOperationException>());
     }
 
     [TestCase(-0.000001)]
@@ -70,7 +94,13 @@ internal sealed class BnkNormalizerTests
     {
         byte[] data = [0x00, 0x01];
 
-        Assert.That(() => BnkNormalizer.NormalizeVolume(data, 8, invalidLevel), Throws.TypeOf<ArgumentOutOfRangeException>());
+        var mockStream = new BnkStream()
+        {
+            SampleData = data,
+            BytesPerSample = 1
+        };
+
+        Assert.That(() => BnkNormalizer.NormalizeVolume(mockStream, invalidLevel), Throws.TypeOf<ArgumentOutOfRangeException>());
     }
 
     [Test]
@@ -80,8 +110,14 @@ internal sealed class BnkNormalizerTests
         byte[] data = [];
         double level = 0.5;
 
+        var mockStream = new BnkStream()
+        {
+            SampleData = data,
+            BytesPerSample = 1
+        };
+
         // Act
-        byte[] result = BnkNormalizer.NormalizeVolume(data, 8, level);
+        byte[] result = BnkNormalizer.NormalizeVolume(mockStream, level);
 
         // Assert
         Assert.That(result, Is.Empty);

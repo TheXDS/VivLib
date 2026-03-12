@@ -1,4 +1,11 @@
 <Solution>
+  <Folder Name="/Targets/">
+    <File Path="BuildTargets/BuildPaths.props" />
+    <File Path="BuildTargets/CompileOptions.targets" />
+    <File Path="BuildTargets/GlobalDirectives.props" />
+    <File Path="BuildTargets/PackageInfo.props" />
+    <File Path="BuildTargets/PackageVersion.props" />
+  </Folder>
   <Project Path="src/VivLib.Tests/VivLib.Tests.csproj" />
   <Project Path="src/VivLib/VivLib.csproj" />
 </Solution>

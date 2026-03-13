@@ -48,9 +48,8 @@ public static class AudioNormalizer
         IMinMaxValue<T>,
         IConvertible
     {
-        var maxSample = data.Select(p => p.ToInt64(null)).Select(Math.Abs).Max()!;
-        var max = T.MaxValue.ToDouble(null) * level;
-        var multiplier = max / maxSample;
-        return [.. data.Select(p => ((IConvertible)(p.ToDouble(null) * multiplier)).ToType(typeof(T), CultureInfo.InvariantCulture)).Cast<T>()];
+        var doubleData = data.Select(p => p.ToDouble(null));
+        T NormalizeValue(double value) => (T)((IConvertible)(value * level)).ToType(typeof(T), CultureInfo.InvariantCulture);
+        return [.. doubleData.Select(NormalizeValue).Cast<T>()];
     }
 }

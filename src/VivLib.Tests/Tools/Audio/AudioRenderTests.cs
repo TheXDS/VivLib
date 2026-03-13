@@ -284,7 +284,7 @@ internal class AudioRenderTests
         Assert.That(asf.AudioBlocks, Has.Exactly(2).Items);
         foreach (var block in asf.AudioBlocks)
         {
-            Assert.That(block.Length, Is.EqualTo(4));
+            Assert.That(block, Has.Length.EqualTo(4));
         }
 
         var expected = new byte[] { 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08 };

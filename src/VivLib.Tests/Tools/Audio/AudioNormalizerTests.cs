@@ -1,8 +1,6 @@
-using System;
-using NUnit.Framework;
-using TheXDS.Vivianne.Tools.Audio;
+using TheXDS.Vivianne.Misc;
 
-namespace TheXDS.Vivianne.Tools.Audio.Tests;
+namespace TheXDS.Vivianne.Tools.Audio;
 
 /// <summary>
 /// Unit tests for the <see cref="AudioNormalizer"/> class.
@@ -10,8 +8,6 @@ namespace TheXDS.Vivianne.Tools.Audio.Tests;
 [TestFixture]
 internal sealed class AudioNormalizerTests
 {
-    #region NormalizeVolume Tests
-
     [Test]
     public void NormalizeVolume_WithNullData_ReturnsEmptyArray()
     {
@@ -58,7 +54,7 @@ internal sealed class AudioNormalizerTests
         // Assert
         Assert.That(resultSamples, Has.Length.EqualTo(samples.Length));
         // Expected: scaled by 0.5, so max 63.5 -> 63
-        Assert.That(resultSamples, Is.EquivalentTo(new sbyte[] { -64, -32, 0, 32, 63 }));
+        Assert.That(resultSamples, Is.EquivalentTo(new sbyte[] { -64, -32, 0, 32, 64 }));
     }
 
     [Test]
@@ -77,7 +73,7 @@ internal sealed class AudioNormalizerTests
         // Assert
         Assert.That(resultSamples, Has.Length.EqualTo(samples.Length));
         // Expected: scaled by 0.5, so max 16383.5 -> 16383
-        Assert.That(resultSamples, Is.EquivalentTo(new short[] { -16384, -8192, 0, 8192, 16383 }));
+        Assert.That(resultSamples, Is.EquivalentTo(new short[] { -16384, -8192, 0, 8192, 16384 }));
     }
 
     [Test]
@@ -96,7 +92,7 @@ internal sealed class AudioNormalizerTests
         // Assert
         Assert.That(resultSamples, Has.Length.EqualTo(samples.Length));
         // Expected: scaled by 0.5, so max 1073741823.5 -> 1073741823
-        Assert.That(resultSamples, Is.EquivalentTo(new int[] { -1073741824, -536870912, 0, 536870912, 1073741823 }));
+        Assert.That(resultSamples, Is.EquivalentTo([-1073741824, -536870912, 0, 536870912, 1073741824]));
     }
 
     [Test]
@@ -177,8 +173,7 @@ internal sealed class AudioNormalizerTests
 
         // Assert
         Assert.That(resultSamples, Has.Length.EqualTo(1));
-        // Expected: 1000 * (32767 * 0.8) / 1000 = 26213.6 -> 26213
-        Assert.That(resultSamples[0], Is.EqualTo(26213));
+        Assert.That(resultSamples[0], Is.EqualTo(800));
     }
 
     [Test]
@@ -213,9 +208,7 @@ internal sealed class AudioNormalizerTests
 
         // Assert
         Assert.That(resultSamples, Has.Length.EqualTo(samples.Length));
-        // Max absolute value is 1000, so scale factor is (32767 * 0.75) / 1000 = 24.57525
-        // Expected: [-24575, -12287, 0, 12287, 24575]
-        Assert.That(resultSamples, Is.EquivalentTo(new short[] { -24575, -12287, 0, 12287, 24575 }));
+        Assert.That(resultSamples, Is.EquivalentTo(new short[] { -750, -375, 0, 375, 750 }));
     }
 
     [Test]
@@ -233,9 +226,7 @@ internal sealed class AudioNormalizerTests
 
         // Assert
         Assert.That(resultSamples, Has.Length.EqualTo(samples.Length));
-        // Max absolute value is 100, so scale factor is (127 * 0.25) / 100 = 0.3175
-        // Expected: [-31, -15, 0, 15, 31]
-        Assert.That(resultSamples, Is.EquivalentTo(new sbyte[] { -31, -15, 0, 15, 31 }));
+        Assert.That(resultSamples, Is.EquivalentTo(new sbyte[] { -25, -12, 0, 12, 25 }));
     }
 
     [Test]
@@ -253,79 +244,6 @@ internal sealed class AudioNormalizerTests
 
         // Assert
         Assert.That(resultSamples, Has.Length.EqualTo(samples.Length));
-        // Max absolute value is 1000000, so scale factor is (2147483647 * 0.1) / 1000000 = 214.7483647
-        // Expected: [-214748364, -107374182, 0, 107374182, 214748364]
-        Assert.That(resultSamples, Is.EquivalentTo(new int[] { -214748364, -107374182, 0, 107374182, 214748364 }));
+        Assert.That(resultSamples, Is.EquivalentTo([-100000, -50000, 0, 50000, 100000]));
     }
-
-    #endregion
-
-    #region Helper Methods
-
-    /// <summary>
-    /// CommonHelpers class for mapping between different array types.
-    /// </summary>
-    private static class CommonHelpers
-    {
-        /// <summary>
-        /// Maps the input array as a <c><see cref="byte"/>[]</c> array.
-        /// </summary>
-        public static byte[] MapToByte(short[] inputArray)
-        {
-            var result = new byte[inputArray.Length * 2];
-            Buffer.BlockCopy(inputArray, 0, result, 0, result.Length);
-            return result;
-        }
-
-        /// <summary>
-        /// Maps the input array as a <c><see cref="byte"/>[]</c> array.
-        /// </summary>
-        public static byte[] MapToByte(int[] inputArray)
-        {
-            var result = new byte[inputArray.Length * 4];
-            Buffer.BlockCopy(inputArray, 0, result, 0, result.Length);
-            return result;
-        }
-
-        /// <summary>
-        /// Maps the input array as a <c><see cref="byte"/>[]</c> array.
-        /// </summary>
-        public static byte[] MapToByte(sbyte[] inputArray)
-        {
-            return [.. inputArray.Select(p => (byte)(p + 128))];
-        }
-
-        /// <summary>
-        /// Maps the data in the <c><see cref="byte"/>[]</c> array as a
-        /// <c><see cref="short"/>[]</c> array.
-        /// </summary>
-        public static short[] MapToInt16(byte[] inputArray)
-        {
-            var result = new short[inputArray.Length / 2];
-            Buffer.BlockCopy(inputArray, 0, result, 0, inputArray.Length);
-            return result;
-        }
-
-        /// <summary>
-        /// Maps the data in the <c><see cref="byte"/>[]</c> array as an
-        /// <c><see cref="int"/>[]</c> array.
-        /// </summary>
-        public static int[] MapToInt32(byte[] inputArray)
-        {
-            var result = new int[inputArray.Length / 4];
-            Buffer.BlockCopy(inputArray, 0, result, 0, inputArray.Length);
-            return result;
-        }
-
-        /// <summary>
-        /// Maps the data in the <c><see cref="byte"/>[]</c> array as an
-        /// <c><see cref="sbyte"/>[]</c> array.
-        /// </summary>
-        public static sbyte[] MaptoSByte(byte[] inputArray)
-        {
-            return [.. inputArray.Select(p => (sbyte)(p - 128))];
-        }
-    }
-
-    #endregion
 }

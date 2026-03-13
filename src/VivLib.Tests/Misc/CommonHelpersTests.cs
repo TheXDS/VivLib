@@ -10,7 +10,7 @@ internal class CommonHelpersTests
 
         byte[] result = CommonHelpers.MapToByte(input);
 
-        Assert.That(result.Length, Is.EqualTo(input.Length * 2));
+        Assert.That(result, Has.Length.EqualTo(input.Length * 2));
 
         short[] roundTrip = CommonHelpers.MapToInt16(result);
 
@@ -33,7 +33,7 @@ internal class CommonHelpersTests
 
         byte[] result = CommonHelpers.MapToByte(input);
 
-        Assert.That(result.Length, Is.EqualTo(input.Length * 4));
+        Assert.That(result, Has.Length.EqualTo(input.Length * 4));
 
         int[] roundTrip = CommonHelpers.MapToInt32(result);
 

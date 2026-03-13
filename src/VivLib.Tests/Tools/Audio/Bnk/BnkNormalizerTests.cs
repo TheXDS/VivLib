@@ -27,7 +27,7 @@ internal sealed class BnkNormalizerTests
         sbyte[] resultSamples = CommonHelpers.MaptoSByte(result);
 
         Assert.That(resultSamples, Has.Length.EqualTo(samples.Length));
-        Assert.That(resultSamples, Is.EquivalentTo(new sbyte[] { -64, -32, 0, 32, 63 }));
+        Assert.That(resultSamples, Is.EquivalentTo(new sbyte[] { -64, -32, 0, 32, 64 }));
     }
 
     [Test]
@@ -46,8 +46,8 @@ internal sealed class BnkNormalizerTests
         byte[] result = BnkNormalizer.NormalizeVolume(mockStream, level);
         short[] resultSamples = CommonHelpers.MapToInt16(result);
 
-        Assert.That(resultSamples.Length, Is.EqualTo(samples.Length));
-        Assert.That(resultSamples, Is.EquivalentTo(new short[] { -16384, -8192, 0, 8192, 16383 }));
+        Assert.That(resultSamples, Has.Length.EqualTo(samples.Length));
+        Assert.That(resultSamples, Is.EquivalentTo(new short[] { -16384, -8192, 0, 8192, 16384 }));
     }
 
     [Test]
@@ -67,7 +67,7 @@ internal sealed class BnkNormalizerTests
         int[] resultSamples = CommonHelpers.MapToInt32(result);
 
         Assert.That(resultSamples, Has.Length.EqualTo(samples.Length));
-        Assert.That(resultSamples, Is.EquivalentTo([-1073741824, -536870912, 0, 536870912, 1073741823]));
+        Assert.That(resultSamples, Is.EquivalentTo([-1073741824, -536870912, 0, 536870912, 1073741824]));
     }
 
     [Test]
@@ -138,6 +138,6 @@ internal sealed class BnkNormalizerTests
         double level = 0.5;
         byte[] result = BnkNormalizer.NormalizeVolume(mockStream, level);
         short[] resultSamples = CommonHelpers.MapToInt16(result);
-        Assert.That(resultSamples, Is.EqualTo(new short[] { -16384, -8192, 0, 8192, 16383 }));
+        Assert.That(resultSamples, Is.EqualTo(new short[] { -16384, -8192, 0, 8192, 16384 }));
     }
 }

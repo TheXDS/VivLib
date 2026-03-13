@@ -240,7 +240,7 @@ public class MapItemInfoExtractorTests
         var info = _extractor.GetInfo(item);
         var separatorLines = info.Where(s => s.Contains("---")).ToArray();
 
-        Assert.That(separatorLines.Length, Is.GreaterThanOrEqualTo(2));
+        Assert.That(separatorLines, Has.Length.GreaterThanOrEqualTo(2));
     }
 
     [Test]

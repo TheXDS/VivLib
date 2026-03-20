@@ -2,7 +2,7 @@
 
 using TheXDS.Vivianne.Models.Audio.Base;
 using TheXDS.Vivianne.Models.Audio.Bnk;
-using TheXDS.Vivianne.Info.Bnk;
+using TheXDS.Vivianne.Info.Audio;
 
 namespace TheXDS.Vivianne.Info.Bnk;
 

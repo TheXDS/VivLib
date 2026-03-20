@@ -1,7 +1,7 @@
 ﻿using TheXDS.Vivianne.Models.Audio.Mus;
 using TheXDS.Vivianne.Tools.Audio;
 
-namespace TheXDS.Vivianne.Info.Bnk;
+namespace TheXDS.Vivianne.Info.Audio;
 
 /// <summary>
 /// Implements an information extractor for <see cref="MusFile"/> entities.

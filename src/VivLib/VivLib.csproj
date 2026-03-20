@@ -7,16 +7,24 @@
 	<ItemGroup>
 		<PackageReference Include="BCnEncoder.Net.ImageSharp" Version="1.1.3" />
 		<PackageReference Include="SixLabors.ImageSharp" Version="3.1.12" />
-		<PackageReference Include="TheXDS.MCART" Version="0.18.1" />
+		<PackageReference Include="TheXDS.MCART" Version="1.0.0-alpha.1" />
 	</ItemGroup>
 	<ItemGroup>
 		<EmbeddedResource Update="Resources\Strings\Common.resx">
 			<Generator>ResXFileCodeGenerator</Generator>
 			<LastGenOutput>Common.Designer.cs</LastGenOutput>
 		</EmbeddedResource>
-		<EmbeddedResource Update="Resources\Strings\Info\Bnk\BnkStreamInfoExtractor.resx">
+		<EmbeddedResource Update="Resources\Strings\Info\Audio\BnkFileInfoExtractor.resx">
+		  <Generator>ResXFileCodeGenerator</Generator>
+		  <LastGenOutput>BnkFileInfoExtractor.Designer.cs</LastGenOutput>
+		</EmbeddedResource>
+		<EmbeddedResource Update="Resources\Strings\Info\Audio\BnkStreamInfoExtractor.resx">
 			<Generator>ResXFileCodeGenerator</Generator>
 			<LastGenOutput>BnkStreamInfoExtractor.Designer.cs</LastGenOutput>
+		</EmbeddedResource>
+		<EmbeddedResource Update="Resources\Strings\Info\Fce\FceInfoExtractor.resx">
+		  <Generator>ResXFileCodeGenerator</Generator>
+		  <LastGenOutput>FceInfoExtractor.Designer.cs</LastGenOutput>
 		</EmbeddedResource>
 		<EmbeddedResource Update="Resources\Strings\Mappings.resx">
 			<Generator>PublicResXFileCodeGenerator</Generator>
@@ -45,10 +53,20 @@
 			<AutoGen>True</AutoGen>
 			<DependentUpon>Common.resx</DependentUpon>
 		</Compile>
-		<Compile Update="Resources\Strings\Info\Bnk\BnkStreamInfoExtractor.Designer.cs">
+		<Compile Update="Resources\Strings\Info\Audio\BnkFileInfoExtractor.Designer.cs">
+		  <DesignTime>True</DesignTime>
+		  <AutoGen>True</AutoGen>
+		  <DependentUpon>BnkFileInfoExtractor.resx</DependentUpon>
+		</Compile>
+		<Compile Update="Resources\Strings\Info\Audio\BnkStreamInfoExtractor.Designer.cs">
 			<DesignTime>True</DesignTime>
 			<AutoGen>True</AutoGen>
 			<DependentUpon>BnkStreamInfoExtractor.resx</DependentUpon>
+		</Compile>
+		<Compile Update="Resources\Strings\Info\Fce\FceInfoExtractor.Designer.cs">
+		  <DesignTime>True</DesignTime>
+		  <AutoGen>True</AutoGen>
+		  <DependentUpon>FceInfoExtractor.resx</DependentUpon>
 		</Compile>
 		<Compile Update="Resources\Strings\Mappings.Designer.cs">
 			<DesignTime>True</DesignTime>

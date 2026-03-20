@@ -1,4 +1,5 @@
 ﻿using TheXDS.Vivianne.Models.Fce.Common;
+using St = TheXDS.Vivianne.Resources.Strings.Info.Fce.FceInfoExtractor;
 
 namespace TheXDS.Vivianne.Info.Fce;
 
@@ -11,10 +12,10 @@ public class FcePartInfoExtractor : IEntityInfoExtractor<FcePart>
     public string[] GetInfo(FcePart entity)
     {
         return [
-            string.Format("Name: {0}", entity.Name),
-            string.Format("Origin: X={0}, Y={1}, Z={2}", entity.Origin.X, entity.Origin.Y, entity.Origin.Z),
-            string.Format("Vertices: {0}", entity.Vertices.Length),
-            string.Format("Triangles: {0}", entity.Triangles.Length)
+            string.Format(St.FcePartNfo_Name, entity.Name),
+            string.Format(St.FcePartNfo_Origin, entity.Origin.X, entity.Origin.Y, entity.Origin.Z),
+            string.Format(St.FcePartNfo_Vertices, entity.Vertices.Length),
+            string.Format(St.FcePartNfo_Triangles, entity.Triangles.Length)
         ];
     }
 }

@@ -8,7 +8,7 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-namespace TheXDS.Vivianne.Resources.Strings.Info.Bnk {
+namespace TheXDS.Vivianne.Resources.Strings.Info.Audio {
     using System;
     
     
@@ -19,17 +19,17 @@ namespace TheXDS.Vivianne.Resources.Strings.Info.Bnk {
     // class via a tool like ResGen or Visual Studio.
     // To add or remove a member, edit your .ResX file then rerun ResGen
     // with the /str option, or rebuild your VS project.
-    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Resources.Tools.StronglyTypedResourceBuilder", "17.0.0.0")]
+    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Resources.Tools.StronglyTypedResourceBuilder", "18.0.0.0")]
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
     [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
-    internal class BnkStreamInfoExtractor {
+    internal class BnkFileInfoExtractor {
         
         private static global::System.Resources.ResourceManager resourceMan;
         
         private static global::System.Globalization.CultureInfo resourceCulture;
         
         [global::System.Diagnostics.CodeAnalysis.SuppressMessageAttribute("Microsoft.Performance", "CA1811:AvoidUncalledPrivateCode")]
-        internal BnkStreamInfoExtractor() {
+        internal BnkFileInfoExtractor() {
         }
         
         /// <summary>
@@ -39,7 +39,7 @@ namespace TheXDS.Vivianne.Resources.Strings.Info.Bnk {
         internal static global::System.Resources.ResourceManager ResourceManager {
             get {
                 if (object.ReferenceEquals(resourceMan, null)) {
-                    global::System.Resources.ResourceManager temp = new global::System.Resources.ResourceManager("TheXDS.Vivianne.Resources.Strings.Info.Bnk.BnkStreamInfoExtractor", typeof(BnkStreamInfoExtractor).Assembly);
+                    global::System.Resources.ResourceManager temp = new global::System.Resources.ResourceManager("TheXDS.Vivianne.Resources.Strings.Info.Audio.BnkFileInfoExtractor", typeof(BnkFileInfoExtractor).Assembly);
                     resourceMan = temp;
                 }
                 return resourceMan;
@@ -61,65 +61,47 @@ namespace TheXDS.Vivianne.Resources.Strings.Info.Bnk {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to ℹ️ Has alternate audio stream.
+        ///   Looks up a localized string similar to Declared streams: {0}.
         /// </summary>
-        internal static string BnkNfo_AltStream {
+        internal static string BnkFileNfo_DeclaredStreams {
             get {
-                return ResourceManager.GetString("BnkNfo_AltStream", resourceCulture);
+                return ResourceManager.GetString("BnkFileNfo_DeclaredStreams", resourceCulture);
             }
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Channels: {0}.
+        ///   Looks up a localized string similar to Streams with PT headers: {0}.
         /// </summary>
-        internal static string BnkNfo_Channels {
+        internal static string BnkFileNfo_StreamsWithPtHeaders {
             get {
-                return ResourceManager.GetString("BnkNfo_Channels", resourceCulture);
+                return ResourceManager.GetString("BnkFileNfo_StreamsWithPtHeaders", resourceCulture);
             }
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Duration: {0}.
+        ///   Looks up a localized string similar to Total payload size: {0}.
         /// </summary>
-        internal static string BnkNfo_Duration {
+        internal static string BnkFileNfo_TotalPayload {
             get {
-                return ResourceManager.GetString("BnkNfo_Duration", resourceCulture);
+                return ResourceManager.GetString("BnkFileNfo_TotalPayload", resourceCulture);
             }
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Audio stream format: {0}-bit {1}.
+        ///   Looks up a localized string similar to Usable audio payload: {0}.
         /// </summary>
-        internal static string BnkNfo_Format {
+        internal static string BnkFileNfo_UsablePayload {
             get {
-                return ResourceManager.GetString("BnkNfo_Format", resourceCulture);
+                return ResourceManager.GetString("BnkFileNfo_UsablePayload", resourceCulture);
             }
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Sample rate: {0} Hz.
+        ///   Looks up a localized string similar to BNK format version: {0}.
         /// </summary>
-        internal static string BnkNfo_SampleRate {
+        internal static string BnkFileNfo_Version {
             get {
-                return ResourceManager.GetString("BnkNfo_SampleRate", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Total samples: {0}.
-        /// </summary>
-        internal static string BnkNfo_Samples {
-            get {
-                return ResourceManager.GetString("BnkNfo_Samples", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Size: {0}.
-        /// </summary>
-        internal static string BnkNfo_Size {
-            get {
-                return ResourceManager.GetString("BnkNfo_Size", resourceCulture);
+                return ResourceManager.GetString("BnkFileNfo_Version", resourceCulture);
             }
         }
     }

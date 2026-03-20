@@ -1,8 +1,9 @@
 ﻿using TheXDS.MCART.Types.Extensions;
 using TheXDS.Vivianne.Extensions;
 using TheXDS.Vivianne.Models.Audio.Bnk;
+using St = TheXDS.Vivianne.Resources.Strings.Info.Audio.BnkFileInfoExtractor;
 
-namespace TheXDS.Vivianne.Info.Bnk;
+namespace TheXDS.Vivianne.Info.Audio;
 
 /// <summary>
 /// Implements an information extractor for <see cref="BnkFile"/> entities.
@@ -18,11 +19,11 @@ public class BnkFileInfoExtractor(bool humanSize) : IEntityInfoExtractor<BnkFile
     public string[] GetInfo(BnkFile entity)
     {
         return [
-            string.Format("BNK format version: {0}", entity.FileVersion),
-            string.Format("Declared streams: {0}", entity.Streams.Count),
-            string.Format("Streams with PT headers: {0}", entity.Streams.NotNull().Count()),
-            string.Format("Usable audio payload: {0}", entity.Streams.NotNull().Sum(p => p.SampleData.Length + (p.AltStream?.SampleData.Length ?? 0)).GetSize(humanSize)),
-            string.Format("Total payload size: {0}", entity.PayloadSize.GetSize(humanSize)),
+            string.Format(St.BnkFileNfo_Version, entity.FileVersion),
+            string.Format(St.BnkFileNfo_DeclaredStreams, entity.Streams.Count),
+            string.Format(St.BnkFileNfo_StreamsWithPtHeaders, entity.Streams.NotNull().Count()),
+            string.Format(St.BnkFileNfo_UsablePayload, entity.Streams.NotNull().Sum(p => p.SampleData.Length + (p.AltStream?.SampleData.Length ?? 0)).GetSize(humanSize)),
+            string.Format(St.BnkFileNfo_TotalPayload, entity.PayloadSize.GetSize(humanSize)),
         ];
     }
 }

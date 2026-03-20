@@ -1,6 +1,7 @@
 ﻿using TheXDS.Vivianne.Models.Fce.Nfs3;
 using TheXDS.Vivianne.Extensions;
 using TheXDS.Vivianne.Models.Fce.Common;
+using St = TheXDS.Vivianne.Resources.Strings.Info.Fce.FceInfoExtractor;
 
 namespace TheXDS.Vivianne.Info.Fce;
 
@@ -22,24 +23,24 @@ public class FceInfoExtractor<T>(bool humanSize, bool showRsvdContents) : IEntit
     public string[] GetInfo(IFceFile<T> entity)
     {
         return [.. (string[])[
-            string.Format("File signature: 0x{0:x8}", entity.Magic),
-            string.Format("File format: {0}", VersionIdentifier.FceVersion(entity.Magic)),
-            string.Format("Number of arts: {0}", entity.Arts),
-            string.Format("Bounding box size: X={0}, Y={1}, Z={2}", entity.XHalfSize * 2, entity.YHalfSize * 2, entity.ZHalfSize * 2),
-            DumpTable(entity.RsvdTable1, "Reserved table 1"),
-            DumpTable(entity.RsvdTable2, "Reserved table 2"),
-            DumpTable(entity.RsvdTable3, "Reserved table 3"),
-            string.Format("Declared colors: {0}", entity.Colors.Count()),
-            string.Format("Parts: {0}", entity.Parts.Count),
-            string.Format("Dummies: {0}", entity.Dummies.Count),
+            string.Format(St.FceNfo_FileSignature, entity.Magic),
+            string.Format(St.FceNfo_FileFormat, VersionIdentifier.FceVersion(entity.Magic)),
+            string.Format(St.FceNfo_Arts, entity.Arts),
+            string.Format(St.FceNfo_BoundingBox, entity.XHalfSize * 2, entity.YHalfSize * 2, entity.ZHalfSize * 2),
+            DumpTable(entity.RsvdTable1, St.FceNfo_Rsvd1),
+            DumpTable(entity.RsvdTable2, St.FceNfo_Rsvd2),
+            DumpTable(entity.RsvdTable3, St.FceNfo_Rsvd3),
+            string.Format(St.FceNfo_DeclColors, entity.Colors.Count()),
+            string.Format(St.FceNfo_Parts, entity.Parts.Count),
+            string.Format(St.FceNfo_Dummies, entity.Dummies.Count),
             ]];
     }
 
     private string DumpTable(byte[] table, string tableName)
     {
         return showRsvdContents
-            ? string.Join(Environment.NewLine, ((string[])[string.Format("{0} contents:", tableName)]).Concat(ChunkUp(table, 40).Select(ToHex)))
-            : string.Format("{0} size: {1}", tableName, table.Length.GetSize(humanSize));
+            ? string.Join(Environment.NewLine, ((string[])[string.Format(St.FceNfo_RsvdContents, tableName)]).Concat(ChunkUp(table, 40).Select(ToHex)))
+            : string.Format(St.FceNfo_RsvdSize, tableName, table.Length.GetSize(humanSize));
     }
 
     private static byte[][] ChunkUp(byte[] data, int chunkSize)

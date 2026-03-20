@@ -2,7 +2,6 @@
 using SixLabors.ImageSharp.PixelFormats;
 using SixLabors.ImageSharp.Processing.Processors.Quantization;
 using System.Collections.ObjectModel;
-using System.Runtime.InteropServices;
 using TheXDS.MCART.Types.Extensions;
 using TheXDS.Vivianne.Codecs.Textures;
 using TheXDS.Vivianne.Models.Fsh;

@@ -117,25 +117,52 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <data name="BnkNfo_AltStream" xml:space="preserve">
-    <value>ℹ️ Has alternate audio stream</value>
+  <data name="FceNfo_Arts" xml:space="preserve">
+    <value>Number of arts: {0}</value>
   </data>
-  <data name="BnkNfo_Channels" xml:space="preserve">
-    <value>Channels: {0}</value>
+  <data name="FceNfo_BoundingBox" xml:space="preserve">
+    <value>Bounding box size: X={0}, Y={1}, Z={2}</value>
   </data>
-  <data name="BnkNfo_Duration" xml:space="preserve">
-    <value>Duration: {0}</value>
+  <data name="FceNfo_DeclColors" xml:space="preserve">
+    <value>Declared colors: {0}</value>
   </data>
-  <data name="BnkNfo_Format" xml:space="preserve">
-    <value>Audio stream format: {0}-bit {1}</value>
+  <data name="FceNfo_Dummies" xml:space="preserve">
+    <value>Dummies: {0}</value>
   </data>
-  <data name="BnkNfo_SampleRate" xml:space="preserve">
-    <value>Sample rate: {0} Hz</value>
+  <data name="FceNfo_FileFormat" xml:space="preserve">
+    <value>File format: {0}</value>
   </data>
-  <data name="BnkNfo_Samples" xml:space="preserve">
-    <value>Total samples: {0}</value>
+  <data name="FceNfo_FileSignature" xml:space="preserve">
+    <value>File signature: 0x{0:x8}</value>
   </data>
-  <data name="BnkNfo_Size" xml:space="preserve">
-    <value>Size: {0}</value>
+  <data name="FceNfo_Parts" xml:space="preserve">
+    <value>Parts: {0}</value>
+  </data>
+  <data name="FceNfo_Rsvd1" xml:space="preserve">
+    <value>Reserved table 1</value>
+  </data>
+  <data name="FceNfo_Rsvd2" xml:space="preserve">
+    <value>Reserved table 2</value>
+  </data>
+  <data name="FceNfo_Rsvd3" xml:space="preserve">
+    <value>Reserved table 3</value>
+  </data>
+  <data name="FceNfo_RsvdContents" xml:space="preserve">
+    <value>{0} contents:</value>
+  </data>
+  <data name="FceNfo_RsvdSize" xml:space="preserve">
+    <value>{0} size: {1}</value>
+  </data>
+  <data name="FcePartNfo_Name" xml:space="preserve">
+    <value>Name: {0}</value>
+  </data>
+  <data name="FcePartNfo_Origin" xml:space="preserve">
+    <value>Origin: X={0}, Y={1}, Z={2}</value>
+  </data>
+  <data name="FcePartNfo_Triangles" xml:space="preserve">
+    <value>Triangles: {0}</value>
+  </data>
+  <data name="FcePartNfo_Vertices" xml:space="preserve">
+    <value>Vertices: {0}</value>
   </data>
 </root>

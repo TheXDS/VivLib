@@ -2,9 +2,9 @@
 using TheXDS.Vivianne.Extensions;
 using TheXDS.Vivianne.Models.Audio.Bnk;
 using TheXDS.Vivianne.Resources;
-using St = TheXDS.Vivianne.Resources.Strings.Info.Bnk.BnkStreamInfoExtractor;
+using St = TheXDS.Vivianne.Resources.Strings.Info.Audio.BnkStreamInfoExtractor;
 
-namespace TheXDS.Vivianne.Info.Bnk;
+namespace TheXDS.Vivianne.Info.Audio;
 
 /// <summary>
 /// Implements an information extractor for <see cref="BnkStream"/> entities.
@@ -30,7 +30,7 @@ public class BnkStreamInfoExtractor(bool humanSize) : IEntityInfoExtractor<BnkSt
             string.Format(St.BnkNfo_Format, value.BytesPerSample * 8, Mappings.AudioCodecDescriptions.GetValueOrDefault(value.Compression, "Unknown")),
             string.Format(St.BnkNfo_SampleRate, value.SampleRate),
             string.Format(St.BnkNfo_Size, value.SampleData.Length.GetSize(humanSize)),
-            string.Format("Data after audio stream: {0}", value.PostAudioStreamData.Length.GetSize(humanSize)),
+            string.Format(St.BnkNfo_DataAfterStream, value.PostAudioStreamData.Length.GetSize(humanSize)),
             value.AltStream is null ? null : St.BnkNfo_AltStream
         }.NotNull()];
     }

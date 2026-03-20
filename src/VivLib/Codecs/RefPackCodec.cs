@@ -30,10 +30,6 @@ Jean-loup Gailly        Mark Adler
 jloup@gzip.org          madler@alumni.caltech.edu
 */
 
-using System;
-using System.IO;
-using St = TheXDS.Vivianne.Resources.Strings.QfsCodec;
-
 namespace TheXDS.Vivianne.Codecs;
 
 /// <summary>
@@ -189,8 +185,6 @@ public static class RefPackCodec
         const int WINDOW_MASK = WINDOW_SIZE - 1;
         try
         {
-
-
             int[] rev_similar = new int[WINDOW_SIZE];
             int[,] rev_last = new int[256, 256];
             int dPos;

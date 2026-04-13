@@ -21,5 +21,5 @@ public interface IInPlaceTransformTool<T>
     /// A task that represents the asynchronous operation. The task result
     /// indicates whether the transformation was successful.
     /// </returns>
-    Task<bool> TransformAsync(T item, IProgress<double> progress, CancellationToken cancellationToken);
+    Task<bool> TransformAsync(T item, IProgress<ProgressReport> progress, CancellationToken cancellationToken);
 }

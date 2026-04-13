@@ -32,7 +32,7 @@ public class AsfNormalizer : IInPlaceTransformTool<AsfFile, double>, IInPlaceTra
     }
 
     /// <inheritdoc/>
-    public Task<bool> TransformAsync(AsfFile item, double parameters, IProgress<double> progress, CancellationToken cancellationToken)
+    public Task<bool> TransformAsync(AsfFile item, double parameters, IProgress<ProgressReport> progress, CancellationToken cancellationToken)
     {
         progress.Report(0);
         for (var j = 0; j < item.AudioBlocks.Count; j++)
@@ -45,7 +45,7 @@ public class AsfNormalizer : IInPlaceTransformTool<AsfFile, double>, IInPlaceTra
     }
 
     /// <inheritdoc/>
-    public Task<bool> TransformAsync(AsfFile item, IProgress<double> progress, CancellationToken cancellationToken)
+    public Task<bool> TransformAsync(AsfFile item, IProgress<ProgressReport> progress, CancellationToken cancellationToken)
     {
         return TransformAsync(item, 1.0, progress, cancellationToken);
     }

@@ -29,7 +29,7 @@ public interface IInPlaceTransformTool<TObject, TParameters> : IInPlaceTransform
     /// A task that represents the asynchronous operation. The task result
     /// indicates whether the transformation was successful.
     /// </returns>
-    Task<bool> TransformAsync(TObject item, TParameters parameters, IProgress<double> progress, CancellationToken cancellationToken);
+    Task<bool> TransformAsync(TObject item, TParameters parameters, IProgress<ProgressReport> progress, CancellationToken cancellationToken);
 
     /// <summary>
     /// Transforms the specified item in-place asynchronously using default
@@ -46,7 +46,7 @@ public interface IInPlaceTransformTool<TObject, TParameters> : IInPlaceTransform
     /// A task that represents the asynchronous operation. The task result
     /// indicates whether the transformation was successful.
     /// </returns>
-    Task<bool> IInPlaceTransformTool<TObject>.TransformAsync(TObject item, IProgress<double> progress, CancellationToken cancellationToken)
+    Task<bool> IInPlaceTransformTool<TObject>.TransformAsync(TObject item, IProgress<ProgressReport> progress, CancellationToken cancellationToken)
     {
         return TransformAsync(item, default!, progress, cancellationToken);
     }
@@ -68,7 +68,7 @@ public interface IInPlaceTransformTool<TObject, TParameters> : IInPlaceTransform
     /// A task that represents the asynchronous operation. The task result
     /// indicates whether the transformation was successful.
     /// </returns>
-    Task<bool> IInPlaceTransformTool<(TObject, TParameters)>.TransformAsync((TObject, TParameters) item, IProgress<double> progress, CancellationToken cancellationToken)
+    Task<bool> IInPlaceTransformTool<(TObject, TParameters)>.TransformAsync((TObject, TParameters) item, IProgress<ProgressReport> progress, CancellationToken cancellationToken)
     {
         return TransformAsync(item.Item1, item.Item2, progress, cancellationToken);
     }

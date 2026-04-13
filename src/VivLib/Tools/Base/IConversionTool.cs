@@ -46,5 +46,5 @@ public interface IConversionTool<TInput, TOutput> where TOutput : notnull
     /// <typeparamref name="TOutput"/>, or <see langword="null"/> if the
     /// conversion fails.
     /// </returns>
-    Task<TOutput?> ConvertAsync(TInput input, IProgress<double> progress, CancellationToken cancellationToken);
+    Task<TOutput?> ConvertAsync(TInput input, IProgress<ProgressReport> progress, CancellationToken cancellationToken);
 }

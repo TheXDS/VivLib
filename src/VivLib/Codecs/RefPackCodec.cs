@@ -30,6 +30,8 @@ Jean-loup Gailly        Mark Adler
 jloup@gzip.org          madler@alumni.caltech.edu
 */
 
+using St = TheXDS.Vivianne.Resources.Strings.Codecs.RefPackCodec;
+
 namespace TheXDS.Vivianne.Codecs;
 
 /// <summary>
@@ -325,14 +327,14 @@ public static class RefPackCodec
             cPos += matchLength;
             if (lastwrote != dData.Length)
             {
-                throw new Exception("Something strange happened at the end of QFS compression!");
+                throw new Exception(St.RefPackCompressError);
             }
             Array.Resize(ref cData, cPos);
             return cData;
         }
         catch
         {
-            throw new InvalidDataException("The data cannot be compressed. (You're better off using the uncompressed version of the file)");
+            throw new InvalidDataException(St.CouldNotCompress);
         }
     }
 

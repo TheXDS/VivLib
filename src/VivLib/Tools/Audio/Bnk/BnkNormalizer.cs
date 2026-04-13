@@ -32,14 +32,14 @@ public class BnkNormalizer : IInPlaceTransformTool<BnkStream, double>, IInPlaceT
     }
 
     /// <inheritdoc/>
-    public Task<bool> TransformAsync(BnkStream item, double parameters, IProgress<double> progress, CancellationToken cancellationToken)
+    public Task<bool> TransformAsync(BnkStream item, double parameters, IProgress<ProgressReport> progress, CancellationToken cancellationToken)
     {
         item.SampleData = AudioNormalizer.NormalizeVolume(item.SampleData, item.BytesPerSample * 8, parameters);
         return Task.FromResult(true);
     }
 
     /// <inheritdoc/>
-    public Task<bool> TransformAsync(BnkStream item, IProgress<double> progress, CancellationToken cancellationToken)
+    public Task<bool> TransformAsync(BnkStream item, IProgress<ProgressReport> progress, CancellationToken cancellationToken)
     {
         return TransformAsync(item, 1.0, progress, cancellationToken);
     }

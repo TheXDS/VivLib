@@ -1,4 +1,5 @@
-﻿using TheXDS.Vivianne.Info;
+﻿using System.Collections;
+using TheXDS.Vivianne.Info;
 
 namespace TheXDS.Vivianne.Models.Fce.Common;
 
@@ -7,7 +8,7 @@ namespace TheXDS.Vivianne.Models.Fce.Common;
 /// essential contents of an FCE file.
 /// </summary>
 /// <typeparam name="TPart">Type of part stored in this FCE file.</typeparam>
-public interface IFceFile<TPart> : IFceFile where TPart : FcePart
+public interface IFceFile<TPart> : IFceFile, IEnumerable<TPart> where TPart : FcePart
 {
     /// <summary>
     /// Gets a table containing all defined Parts in the FCE.
@@ -18,4 +19,14 @@ public interface IFceFile<TPart> : IFceFile where TPart : FcePart
     /// elements.
     /// </remarks>
     IList<TPart> Parts { get; }
+
+    IEnumerator<TPart> IEnumerable<TPart>.GetEnumerator()
+    {
+        return Parts.GetEnumerator();
+    }
+
+    IEnumerator IEnumerable.GetEnumerator()
+    {
+        return Parts.GetEnumerator();
+    }
 }

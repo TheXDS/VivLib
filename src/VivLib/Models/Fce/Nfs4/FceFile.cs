@@ -1,4 +1,5 @@
 ﻿using TheXDS.Vivianne.Models.Fce.Common;
+using System.Collections;
 
 namespace TheXDS.Vivianne.Models.Fce.Nfs4;
 
@@ -81,5 +82,10 @@ public class FceFile : FceFileBase<HsbColor, Fce4Part>, IFceFile<FcePart>
         }
     }
 
-    IList<FcePart> IFceFile<FcePart>.Parts => [..Parts.Cast<FcePart>()];
+    IList<FcePart> IFceFile<FcePart>.Parts => [.. Parts.Cast<FcePart>()];
+
+    IEnumerator IEnumerable.GetEnumerator()
+    {
+        return Parts.GetEnumerator();
+    }
 }

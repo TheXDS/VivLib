@@ -34,6 +34,10 @@
 			<Generator>ResXFileCodeGenerator</Generator>
 			<LastGenOutput>QfsCodec.Designer.cs</LastGenOutput>
 		</EmbeddedResource>
+		<EmbeddedResource Update="Resources\Strings\Serializers\Audio\Mus\MusSerializer.resx">
+		  <Generator>ResXFileCodeGenerator</Generator>
+		  <LastGenOutput>MusSerializer.Designer.cs</LastGenOutput>
+		</EmbeddedResource>
 		<EmbeddedResource Update="Resources\Strings\Serializers\FshSerializer.resx">
 			<Generator>ResXFileCodeGenerator</Generator>
 			<LastGenOutput>FshSerializer.Designer.cs</LastGenOutput>
@@ -77,6 +81,11 @@
 			<DesignTime>True</DesignTime>
 			<AutoGen>True</AutoGen>
 			<DependentUpon>QfsCodec.resx</DependentUpon>
+		</Compile>
+		<Compile Update="Resources\Strings\Serializers\Audio\Mus\MusSerializer.Designer.cs">
+		  <DesignTime>True</DesignTime>
+		  <AutoGen>True</AutoGen>
+		  <DependentUpon>MusSerializer.resx</DependentUpon>
 		</Compile>
 		<Compile Update="Resources\Strings\Serializers\FshSerializer.Designer.cs">
 			<DesignTime>True</DesignTime>

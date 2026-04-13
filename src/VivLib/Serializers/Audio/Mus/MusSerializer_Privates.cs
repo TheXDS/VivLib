@@ -5,7 +5,7 @@ using TheXDS.Vivianne.Models.Audio.Base;
 using TheXDS.Vivianne.Models.Audio.Mus;
 using TheXDS.Vivianne.Resources;
 using static TheXDS.Vivianne.Serializers.Audio.PtHeaderSerializerHelper;
-
+using St = TheXDS.Vivianne.Resources.Strings.Serializers.Audio.Mus.MusSerializer;
 namespace TheXDS.Vivianne.Serializers.Audio.Mus;
 
 public partial class MusSerializer
@@ -14,7 +14,7 @@ public partial class MusSerializer
     {
         if (!Mappings.AudioCodecSelector.TryGetValue(asf.Compression, out var codec))
         {
-            throw new InvalidOperationException($"Unsupported audio codec: {asf.Compression} ({(int)asf.Compression:X2})");
+            throw new InvalidOperationException(String.Format(St.UnsupportedCodec, asf.Compression, (int)asf.Compression));
         }
 
         bw.Write("SCHl"u8.ToArray());
@@ -75,7 +75,7 @@ public partial class MusSerializer
             }
             catch (Exception ex)
             {
-                throw new EndOfStreamException("Unexpected end of file.", ex);
+                throw new EndOfStreamException(St.UnexpectedEof, ex);
             }
             switch (Encoding.Latin1.GetString(blockHeader.Magic))
             {
@@ -85,7 +85,7 @@ public partial class MusSerializer
                 case "SCLl": ReadLoopOffset(data, blockData); break;
                 case "SCEl": return data.ToFile();
                 default:
-                    throw new InvalidDataException($"Unknown ASF block type: {Encoding.Latin1.GetString(blockHeader.Magic)}. Length: {blockData.Length} bytes");
+                    throw new InvalidDataException(string.Format(St.UnkAsfBlockType, Encoding.Latin1.GetString(blockHeader.Magic), blockData.Length));
             }
         }
     }
@@ -105,9 +105,8 @@ public partial class MusSerializer
             // If we're still in the same situation, throw an exception.
             if (!blockHeader.Magic[0..2].SequenceEqual("SC"u8.ToArray()))
             {
-                throw new InvalidDataException($"Invalid or corrupt ASF block: '{Encoding.Latin1.GetString(blockHeader.Magic)}' (0x{BitConverter.ToInt32(blockHeader.Magic):X8})");
+                throw new InvalidDataException(string.Format(St.CorruptAsfBlock, Encoding.Latin1.GetString(blockHeader.Magic), BitConverter.ToInt32(blockHeader.Magic)));
             }
-
             data.ByteAlignment = 4;
         }
         return blockHeader;
@@ -117,7 +116,7 @@ public partial class MusSerializer
     {
         var data = Mappings.AudioCodecSelector.TryGetValue((CompressionMethod)d.PtHeader[PtAudioHeaderField.Compression].Value, out var codec)
             ? codec.Invoke().Decode(blockData, d.PtHeader)
-            : throw new InvalidOperationException($"Unsupported audio codec: {d.PtHeader[PtAudioHeaderField.Compression].Value:X2}");
+            : throw new InvalidOperationException(string.Format(St.UnsupportedCodec2,d.PtHeader[PtAudioHeaderField.Compression].Value));
 
         d.AudioBlocks.Add(data);
     }

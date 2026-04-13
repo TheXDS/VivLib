@@ -1,5 +1,6 @@
 ﻿using System.Runtime.InteropServices;
 using TheXDS.Vivianne.Models.Audio.Mus;
+using St = TheXDS.Vivianne.Resources.Strings.Serializers.Audio.Mus.MusSerializer;
 
 namespace TheXDS.Vivianne.Serializers.Audio.Mus;
 
@@ -23,7 +24,8 @@ public partial class MusSerializer : ISerializer<MusFile>, ISerializer<AsfFile>
         var mus = new MusFile();
         do
         {
-            if (ReadAsfFile(br) is { } asf) mus.AsfSubStreams.Add((int)stream.Position, asf);
+            var currentPosition = stream.Position;
+            if (ReadAsfFile(br) is { } asf) mus.AsfSubStreams.Add((int)currentPosition, asf);
         } while ((stream.Position + Marshal.SizeOf<AsfBlockHeader>()) < stream.Length);
         return mus;
     }
@@ -48,6 +50,6 @@ public partial class MusSerializer : ISerializer<MusFile>, ISerializer<AsfFile>
     AsfFile IOutSerializer<AsfFile>.Deserialize(Stream stream)
     {
         using BinaryReader br = new(stream);
-        return ReadAsfFile(br) ?? throw new InvalidDataException("The file does not seem to be a valid ASF stream.");
+        return ReadAsfFile(br) ?? throw new InvalidDataException(St.InvalidAsfStream);
     }
 }

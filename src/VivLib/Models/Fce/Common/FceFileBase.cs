@@ -74,6 +74,8 @@ public abstract class FceFileBase<TColor, TPart> : IFceFile<TPart> where TColor 
     /// </remarks>
     public IList<TColor> SecondaryColors { get; set; } = [];
 
+    IEnumerable<TPart> IFcePartEnumerable<TPart>.Parts => Parts;
+
     /// <summary>
     /// Gets a part with the specified name.
     /// </summary>

@@ -84,6 +84,8 @@ public class FceFile : FceFileBase<HsbColor, Fce4Part>, IFceFile<FcePart>
 
     IList<FcePart> IFceFile<FcePart>.Parts => [.. Parts.Cast<FcePart>()];
 
+    IEnumerable<FcePart> IFcePartEnumerable<FcePart>.Parts => Parts;
+
     IEnumerator IEnumerable.GetEnumerator()
     {
         return Parts.GetEnumerator();

@@ -14,9 +14,9 @@ public class FceCenter : IInPlaceTransformTool<IFceFile<FcePart>>
     /// Centers an FCE model.
     /// </summary>
     /// <param name="fce">FCE model to center.</param>
-    public static void Center(IFceFile<FcePart> fce)
+    public static void Center(IFcePartEnumerable<FcePart> fce)
     {
-        var vertices = fce.SelectMany(p => p.TransformedVertices).ToArray();
+        var vertices = fce.Parts.SelectMany(p => p.TransformedVertices).ToArray();
         var minX = vertices.Min(p => p.X);
         var minY = vertices.Min(p => p.Y);
         var minZ = vertices.Min(p => p.Z);

@@ -245,7 +245,7 @@ internal class FshBlobExtensionsTests
         using (Assert.EnterMultipleScope())
         {
             Assert.That(blob.Magic, Is.EqualTo(FshBlobFormat.Argb32));
-            Assert.That(blob.PixelData, Is.EquivalentTo([0xff, 0x11, 0x22, 0x33, 0xff, 0x11, 0x22, 0x33, 0xff, 0x11, 0x22, 0x33, 0xff, 0x11, 0x22, 0x33]));
+            Assert.That(blob.PixelData, Is.EquivalentTo<byte>([0xff, 0x11, 0x22, 0x33, 0xff, 0x11, 0x22, 0x33, 0xff, 0x11, 0x22, 0x33, 0xff, 0x11, 0x22, 0x33]));
         }
     }
 
@@ -271,7 +271,7 @@ internal class FshBlobExtensionsTests
         using (Assert.EnterMultipleScope())
         {
             Assert.That(blob.Magic, Is.EqualTo(FshBlobFormat.Indexed8));
-            Assert.That(blob.PixelData, Is.EquivalentTo([0x00, 0x00, 0x00, 0x00]));
+            Assert.That(blob.PixelData, Is.EquivalentTo<byte>([0x00, 0x00, 0x00, 0x00]));
             Assert.That(blob.Footer, Has.Length.EqualTo(1040));
         }
     }
@@ -298,7 +298,7 @@ internal class FshBlobExtensionsTests
         using (Assert.EnterMultipleScope())
         {
             Assert.That(blob.Magic, Is.EqualTo(FshBlobFormat.Indexed8));
-            Assert.That(blob.PixelData, Is.EquivalentTo([0x00, 0x00, 0x00, 0x00]));
+            Assert.That(blob.PixelData, Is.EquivalentTo<byte>([0x00, 0x00, 0x00, 0x00]));
             Assert.That(blob.Footer, Has.Length.EqualTo(1040));
         }
     }

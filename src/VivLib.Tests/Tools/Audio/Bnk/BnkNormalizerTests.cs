@@ -82,7 +82,7 @@ internal sealed class BnkNormalizerTests
             BytesPerSample = 55
         };
 
-        Assert.That(() => BnkNormalizer.NormalizeVolume(mockStream, level), Throws.TypeOf<InvalidOperationException>());
+        Assert.That((Func<byte[]>)(() => BnkNormalizer.NormalizeVolume(mockStream, level)), Throws.TypeOf<InvalidOperationException>());
     }
 
     [TestCase(-0.000001)]
@@ -100,7 +100,7 @@ internal sealed class BnkNormalizerTests
             BytesPerSample = 1
         };
 
-        Assert.That(() => BnkNormalizer.NormalizeVolume(mockStream, invalidLevel), Throws.TypeOf<ArgumentOutOfRangeException>());
+        Assert.That((Func<byte[]>)(() => BnkNormalizer.NormalizeVolume(mockStream, invalidLevel)), Throws.TypeOf<ArgumentOutOfRangeException>());
     }
 
     [Test]

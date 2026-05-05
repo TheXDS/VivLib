@@ -27,7 +27,7 @@ internal class RefPackCodecTests
     [Test]
     public void Codec_throws_on_uncompressible_data()
     {
-        Assert.That(() => RefPackCodec.Compress(GetDeterministicRndArray(1048576)), Throws.InstanceOf<InvalidDataException>());
+        Assert.That((Func<byte[]>)(() => RefPackCodec.Compress(GetDeterministicRndArray(1048576))), Throws.InstanceOf<InvalidDataException>());
     }
 
     private static IEnumerable<byte[]> GetTestCases()

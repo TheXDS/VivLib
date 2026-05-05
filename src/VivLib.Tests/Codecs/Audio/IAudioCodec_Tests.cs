@@ -9,6 +9,6 @@ internal class IAudioCodec_Tests
     [Test]
     public void Interface_Encode_throws_NotImplementedException()
     {
-        Assert.That(() => codec.Encode([], new Serializers.Audio.PtHeader()), Throws.InstanceOf<NotImplementedException>());
+        Assert.That((Func<byte[]>)(() => codec.Encode([], new Serializers.Audio.PtHeader())), Throws.InstanceOf<NotImplementedException>());
     }
 }

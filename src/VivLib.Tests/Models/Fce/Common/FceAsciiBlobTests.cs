@@ -16,7 +16,7 @@ internal class FceAsciiBlobTests
     [Test]
     public void Struct_ctor_contract_test()
     {
-        Assert.That(() => new FceAsciiBlob(new string('x', 64)), Throws.ArgumentException);
+        Assert.That((Func<FceAsciiBlob>)(() => new FceAsciiBlob(new string('x', 64))), Throws.ArgumentException);
     }
 
     [Test]

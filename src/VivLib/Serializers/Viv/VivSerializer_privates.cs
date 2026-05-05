@@ -22,7 +22,7 @@ public partial class VivSerializer : ISerializer<VivFile>
 
     private IEnumerable<KeyValuePair<string, (int offset, int length)>> ApplySort(IEnumerable<KeyValuePair<string, (int offset, int length)>> dir)
     {
-        return Sort?.Invoke() switch
+        return Sort switch
         {
             SortType.FileName => dir.OrderBy(p => p.Key, StringComparer.InvariantCultureIgnoreCase),
             SortType.FileType => dir.OrderBy(p => Path.GetExtension(p.Key), StringComparer.InvariantCultureIgnoreCase).ThenBy(p => p.Key, StringComparer.InvariantCultureIgnoreCase),

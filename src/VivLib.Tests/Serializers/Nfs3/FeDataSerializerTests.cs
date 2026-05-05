@@ -70,7 +70,7 @@ public class FeDataSerializerTests() : SerializerTestsBase<FeDataSerializer, FeD
 
     protected override void TestParsedFile(FeData expected, FeData actual)
     {
-        Assert.Multiple(() =>
+        using (Assert.EnterMultipleScope())
         {
             Assert.That(actual.CarId, Is.EqualTo(expected.CarId));
             Assert.That(actual.SerialNumber, Is.EqualTo(expected.SerialNumber));
@@ -123,6 +123,6 @@ public class FeDataSerializerTests() : SerializerTestsBase<FeDataSerializer, FeD
             Assert.That(actual.Color8, Is.EqualTo(expected.Color8));
             Assert.That(actual.Color9, Is.EqualTo(expected.Color9));
             Assert.That(actual.Color10, Is.EqualTo(expected.Color10));
-        });
+        };
     }
 }

@@ -13,6 +13,7 @@ public abstract class BnkSerializerTests(string streamName, BnkFile referenceFil
         {
             Assert.That(actual.FileVersion, Is.EqualTo(expected.FileVersion));
             Assert.That(actual.Streams, Has.Count.EqualTo(expected.Streams.Count));
+            Assert.That(actual.Unk_0x10, Is.EqualTo(expected.Unk_0x10));
         }
         foreach ((BnkStream? expectedAudio, BnkStream? actualAudio) in expected.Streams.Zip(actual.Streams))
         {
@@ -40,7 +41,6 @@ public abstract class BnkSerializerTests(string streamName, BnkFile referenceFil
             Assert.That(actual.SampleRate, Is.EqualTo(expected.SampleRate));
             Assert.That(actual.BytesPerSample, Is.EqualTo(expected.BytesPerSample));
             Assert.That(actual.SampleData, Is.EquivalentTo(expected.SampleData));
-            Assert.That(actual.PostAudioStreamData, Is.EquivalentTo(expected.PostAudioStreamData));
             Assert.That(actual.IsAltStream, Is.EqualTo(expected.IsAltStream));
             Assert.That(actual.CalculatedDuration, Is.EqualTo(expected.CalculatedDuration));
             Assert.That(actual.TotalSamples, Is.EqualTo(expected.TotalSamples));

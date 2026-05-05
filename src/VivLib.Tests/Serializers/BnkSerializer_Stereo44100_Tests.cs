@@ -1,4 +1,5 @@
 ﻿#pragma warning disable CS1591
+
 using TheXDS.Vivianne.Models.Audio.Base;
 using TheXDS.Vivianne.Models.Audio.Bnk;
 
@@ -10,6 +11,7 @@ public class BnkSerializer_Stereo44100_Tests() : BnkSerializerTests("teststereo4
     private static BnkFile GetDefaultFile() => new()
     {
         FileVersion = 2,
+        Unk_0x10 = -1, // This is by convention on BNKv2
         Streams =
         {
             new BnkStream()

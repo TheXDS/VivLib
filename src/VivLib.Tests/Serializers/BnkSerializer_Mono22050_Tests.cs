@@ -11,6 +11,7 @@ public class BnkSerializer_Mono22050_Tests() : BnkSerializerTests("testmono22050
     private static BnkFile GetDefaultFile() => new()
     {
         FileVersion = 2,
+        Unk_0x10 = -1, // This is by convention on BNKv2
         Streams =
         {
             new BnkStream()
@@ -23,7 +24,7 @@ public class BnkSerializer_Mono22050_Tests() : BnkSerializerTests("testmono22050
                     0x00, 0x00, 0xff, 0x3f, 0xff, 0x7f,
                     0xff, 0x3f, 0x00, 0x00, 0x01, 0xc0,
                     0x00, 0x80, 0x01, 0xc0, 0x00, 0x00
-                ]
+                ],
             }
         }
     };

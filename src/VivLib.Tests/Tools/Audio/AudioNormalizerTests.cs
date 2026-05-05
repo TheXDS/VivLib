@@ -138,7 +138,7 @@ internal sealed class AudioNormalizerTests
         double level = 0.5;
 
         // Act & Assert
-        Assert.That(() => AudioNormalizer.NormalizeVolume(data, bits, level), 
+        Assert.That((Func<byte[]>)(() => AudioNormalizer.NormalizeVolume(data, bits, level)), 
             Throws.InstanceOf<InvalidOperationException>());
     }
 
@@ -154,7 +154,7 @@ internal sealed class AudioNormalizerTests
         int bits = 16;
 
         // Act & Assert
-        Assert.That(() => AudioNormalizer.NormalizeVolume(data, bits, invalidLevel),
+        Assert.That((Func<byte[]>)(() => AudioNormalizer.NormalizeVolume(data, bits, invalidLevel)),
             Throws.InstanceOf<ArgumentOutOfRangeException>());
     }
 

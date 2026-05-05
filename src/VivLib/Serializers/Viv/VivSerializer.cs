@@ -1,4 +1,5 @@
-﻿using TheXDS.MCART.Helpers;
+﻿using System.Diagnostics;
+using TheXDS.MCART.Helpers;
 using TheXDS.MCART.Types.Extensions;
 using TheXDS.Vivianne.Models.Viv;
 using static System.Text.Encoding;
@@ -15,7 +16,7 @@ public partial class VivSerializer : ISerializer<VivFile>
     /// <summary>
     /// Gets or sets the directory sorting algorithm to use.
     /// </summary>
-    public Func<SortType>? Sort { get; set; }
+    public SortType Sort { get; set; }
 
     /// <inheritdoc/>
     public VivFile Deserialize(Stream stream)
@@ -29,7 +30,7 @@ public partial class VivSerializer : ISerializer<VivFile>
         var vivLength = reader.ReadInt32().FlipEndianness();
         if (stream.CanSeek && stream.Length != vivLength)
         {
-            //throw new InvalidDataException(St.VivFileLengthMismatch);
+            Debug.Print(St.VivFileLengthMismatch);
         }
         var entries = reader.ReadInt32().FlipEndianness();
         var blobPool = reader.ReadInt32().FlipEndianness();

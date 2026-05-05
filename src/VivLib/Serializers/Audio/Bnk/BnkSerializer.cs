@@ -10,6 +10,12 @@ namespace TheXDS.Vivianne.Serializers.Audio.Bnk;
 /// </summary>
 public partial class BnkSerializer : ISerializer<BnkFile>
 {
+    /// <summary>
+    /// Gets or sets a value indicating whether to enable stream deduplication
+    /// when serializing.
+    /// </summary>
+    public bool EnableStreamDedup { get; set; }
+
     /// <inheritdoc/>
     public BnkFile Deserialize(Stream stream)
     {

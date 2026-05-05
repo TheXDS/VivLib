@@ -25,7 +25,7 @@ public class VivSerializerTests() : SerializerTestsBase<VivSerializer, VivFile>(
     public void Deserialize_throws_on_invalid_header()
     {
         byte[] invalidViv = [0x56, 0x49, 0x58, 0x00];
-        Assert.Throws<InvalidDataException>(() => ((ISerializer<VivFile>)serializer).Deserialize(invalidViv));
+        Assert.That((Func<VivFile>)(() => serializer.Deserialize(invalidViv)), Throws.InstanceOf<InvalidDataException>());
     }
 
     [Test]

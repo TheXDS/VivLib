@@ -8,6 +8,6 @@ internal class IImageCodec_Tests
     public void Encode_when_not_implemented_throws_NotImplementedException()
     {
         Mock<IImageCodec> mock = new() { CallBase = true };
-        Assert.That(() => mock.Object.Encode([], 0, 0), Throws.InstanceOf<NotImplementedException>());
+        Assert.That((Func<byte[]>)(() => mock.Object.Encode([], 0, 0)), Throws.InstanceOf<NotImplementedException>());
     }
 }

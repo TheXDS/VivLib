@@ -1,4 +1,5 @@
 ﻿using System.Runtime.InteropServices;
+using TheXDS.MCART.Exceptions;
 using TheXDS.MCART.Helpers;
 using TheXDS.MCART.Types.Extensions;
 using TheXDS.Vivianne.Models.Audio.Base;
@@ -71,14 +72,23 @@ public partial class BnkSerializer : ISerializer<BnkFile>
         }
     }
 
-    private static PtHeader WriteAudioData(BinaryWriter bw, BnkStream stream, in int poolOffset)
+    private PtHeader WriteAudioData(BinaryWriter bw, BnkStream stream, in int poolOffset)
     {
         var ptHeader = ToPtHeader(stream, poolOffset);
-        ptHeader[PtAudioHeaderField.DataOffset] = new PtHeaderValue(4, (int)bw.BaseStream.Position + poolOffset);
-        bw.Write(stream.SampleData);
-        if (stream.PostAudioStreamData.Length > 0)
+
+        byte[] ms = (bw.BaseStream as MemoryStream ?? throw new TamperException()).ToArray();
+        if (EnableStreamDedup && ms.Length > 0 && ms.IndexOfArray(stream.SampleData) is int offset && offset != -1)
         {
-            bw.Write(stream.PostAudioStreamData);
+            ptHeader[PtAudioHeaderField.DataOffset] = new PtHeaderValue(4, offset + poolOffset);
+        }
+        else
+        {
+            ptHeader[PtAudioHeaderField.DataOffset] = new PtHeaderValue(4, (int)bw.BaseStream.Position + poolOffset);
+            bw.Write(stream.SampleData);
+            if (stream.PostAudioStreamData.Length > 0)
+            {
+                bw.Write(stream.PostAudioStreamData);
+            }
         }
         if (stream.AltStream is not null)
         {
@@ -97,22 +107,22 @@ public partial class BnkSerializer : ISerializer<BnkFile>
         return new BnkStream
         {
             Id = id,
-            Channels = (byte)header[PtAudioHeaderField.Channels],
+            Channels = (byte)header[PtAudioHeaderField.Channels].Value,
             Compression = (CompressionMethod)header[PtAudioHeaderField.Compression].Value,
-            SampleRate = (ushort)header[PtAudioHeaderField.SampleRate],
+            SampleRate = (ushort)header[PtAudioHeaderField.SampleRate].Value,
             LoopStart = header[PtAudioHeaderField.LoopOffset],
             LoopEnd = header[PtAudioHeaderField.LoopEnd],
-            BytesPerSample = (byte)header[PtAudioHeaderField.BytesPerSample],
+            BytesPerSample = (byte)header[PtAudioHeaderField.BytesPerSample].Value,
             SampleData = sampleData,
             IsAltStream = isAltStream,
             AltStream = header.AltStream is { } altHeader ? ToBnkStream(altHeader, br, $"Alt {id}", true, sampleOffsets) : null,
             Properties = new Dictionary<byte, PtHeaderValue>(header.Values.Select(p => new KeyValuePair<byte, PtHeaderValue>((byte)p.Key, p.Value))),
             CustomAudioProperties = new Dictionary<byte, PtHeaderValue>(header.AudioValues.Select(p => new KeyValuePair<byte, PtHeaderValue>((byte)p.Key, p.Value)).Where(FilterOutCommonProps)),
-            PostAudioStreamData = GetPostAudioData(br, header, sampleData.Length, sampleOffsets)
+            PostAudioStreamData = GetPostAudioData(br, header, sampleOffsets)
         };
     }
 
-    private static byte[] GetPostAudioData(BinaryReader br, PtHeader header, int audioDataLength, int[] sampleOffsets)
+    private static byte[] GetPostAudioData(BinaryReader br, PtHeader header, int[] sampleOffsets)
     {
         var startOfPostData = header[PtAudioHeaderField.DataOffset] + GetByteCount(br, header);
         var nextOffset = sampleOffsets

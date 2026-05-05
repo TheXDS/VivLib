@@ -5,20 +5,22 @@ public abstract class SerializerTestsBase<TSerializer, TFile>(string streamName,
 {
     private readonly string streamName = streamName;
     private readonly TFile referenceFile = referenceFile;
-    protected TSerializer serializer;
+    protected ISerializer<TFile> serializer = null!;
     private Stream testStream;
     private byte[] testFileContents;
 
     [SetUp]
     public void Setup()
     {
-        serializer = new TSerializer();
+        SetupSerializer((TSerializer)(serializer = new TSerializer()));
         testStream = typeof(SerializerTestsBase<,>).Assembly!.GetManifestResourceStream(@$"TheXDS.Vivianne.Resources.Files.{streamName}")!;
         using var ms = new MemoryStream();
         testStream.CopyTo(ms);
         testStream.Seek(0, SeekOrigin.Begin);
         testFileContents = ms.ToArray();
     }
+
+    protected virtual void SetupSerializer(TSerializer serializer) { }
 
     [TearDown]
     public void TearDown()

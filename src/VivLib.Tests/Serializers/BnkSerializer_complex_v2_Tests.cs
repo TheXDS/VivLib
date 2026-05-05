@@ -1,15 +1,23 @@
 ﻿#pragma warning disable CS1591
 using TheXDS.Vivianne.Models.Audio.Base;
 using TheXDS.Vivianne.Models.Audio.Bnk;
+using TheXDS.Vivianne.Serializers.Audio.Bnk;
 
 namespace TheXDS.Vivianne.Serializers;
 
 [TestFixture]
 public class BnkSerializer_complex_v2_Tests() : BnkSerializerTests("test_complex_v2.bnk", GetDefaultFile())
 {
+    protected override void SetupSerializer(BnkSerializer serializer)
+    {
+        serializer.EnableStreamDedup = true;
+    }
+
     private static BnkFile GetDefaultFile() => new()
     {
         FileVersion = 2,
+        Unk_0x10 = -1,
+        HeaderAttachment = [ 0x00, 0x00, 0x00, 0x00 ],
         Streams =
         {
             new BnkStream()
@@ -30,7 +38,6 @@ public class BnkSerializer_complex_v2_Tests() : BnkSerializerTests("test_complex
                     0xff, 0x3f, 0x00, 0x00, 0x01, 0xc0,
                     0x00, 0x80, 0x01, 0xc0, 0x00, 0x00
                 ],
-                PostAudioStreamData = [.. Enumerable.Range(0,10).Select(p => (byte)p)],
                 AltStream = new()
                 {
                     IsAltStream = true,
@@ -71,7 +78,6 @@ public class BnkSerializer_complex_v2_Tests() : BnkSerializerTests("test_complex
                     0x01, 0xc0, 0xff, 0x3f,
                     0x00, 0x00, 0x00, 0x00
                 ],
-                PostAudioStreamData = [.. Enumerable.Range(0, 10).Select(p => (byte)p)],
                 AltStream = new()
                 {
                     IsAltStream = true,
@@ -103,7 +109,6 @@ public class BnkSerializer_complex_v2_Tests() : BnkSerializerTests("test_complex
                     0xff, 0x3f, 0x00, 0x00, 0x01, 0xc0,
                     0x00, 0x80, 0x01, 0xc0, 0x00, 0x00
                 ],
-                PostAudioStreamData = [.. Enumerable.Range(0,10).Select(p => (byte)p)],
             },
             new BnkStream()
             {
@@ -122,7 +127,6 @@ public class BnkSerializer_complex_v2_Tests() : BnkSerializerTests("test_complex
                     0x01, 0xc0, 0xff, 0x3f,
                     0x00, 0x00, 0x00, 0x00
                 ],
-                PostAudioStreamData = [.. Enumerable.Range(0, 10).Select(p => (byte)p)],
             }
         }
     };

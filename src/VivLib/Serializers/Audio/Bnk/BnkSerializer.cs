@@ -25,6 +25,7 @@ public partial class BnkSerializer : ISerializer<BnkFile>
         }
         var ptHeaderOffsets = br.MarshalReadArray<int>(header.Streams);
         var ptHeaders = ReadPtHeaders(br, headerSize, ptHeaderOffsets).ToArray();
+        SkipPadding(br, PtHeaderBlockAlignment);
         var headerAttachment = ReadHeaderAttachment(br, header);
         var streams = ReadBnkStreams(br, ptHeaders);
         var bnk = new BnkFile()
@@ -64,11 +65,7 @@ public partial class BnkSerializer : ISerializer<BnkFile>
             var pt = WriteAudioData(poolBw, j, poolOffset);
             headerOffsets.Add((int)headersStream.Position + (entity.Streams.Count * 4) - (4 * index));
             PtHeaderSerializerHelper.WritePtHeader(headersBw, pt);
-            var padding = PtHeaderBlockAlignment - ((int)(headersStream.Length + bnkHeaderSize) % PtHeaderBlockAlignment);
-            if (padding != PtHeaderBlockAlignment)
-            {
-                headersBw.Write(new byte[padding]);
-            }
+            WritePadding(headersBw, PtHeaderBlockAlignment);
         }
         headersBw.Write(entity.HeaderAttachment);
         bnkHeader.PoolOffset = poolOffset;

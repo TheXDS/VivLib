@@ -14,7 +14,7 @@ public partial class BnkSerializer : ISerializer<BnkFile>
 
     private static byte[] ReadHeaderAttachment(BinaryReader br, BnkHeader header)
     {
-        var dataStart = (int)(br.BaseStream.Position + (PtHeaderBlockAlignment - (br.BaseStream.Position % PtHeaderBlockAlignment)));
+        var dataStart = (int)(br.BaseStream.Position + (br.BaseStream.Position % PtHeaderBlockAlignment));
         var dataLength = header.PoolOffset - dataStart;
         return dataLength > 0 ? br.ReadBytes(dataLength) : [];
     }
@@ -34,6 +34,24 @@ public partial class BnkSerializer : ISerializer<BnkFile>
                 throw new InvalidDataException();
             }
             yield return PtHeaderSerializerHelper.ReadPtHeader(br);
+        }
+    }
+
+    private static void WritePadding(BinaryWriter bw, int alignment)
+    {
+        var padding = alignment - ((int)bw.BaseStream.Length % alignment);
+        if (padding != alignment)
+        {
+            bw.Write(new byte[padding]);
+        }
+    }
+
+    private static void SkipPadding(BinaryReader br, int alignment)
+    {
+        var padding = alignment - ((int)br.BaseStream.Position % alignment);
+        if (padding != alignment)
+        {
+            br.BaseStream.Seek(padding, SeekOrigin.Current);
         }
     }
 
@@ -66,6 +84,7 @@ public partial class BnkSerializer : ISerializer<BnkFile>
         {
             ptHeader.AltStream = WriteAudioData(bw, stream.AltStream, poolOffset);
         }
+        WritePadding(bw, PtHeaderBlockAlignment);
         return ptHeader;
     }
 

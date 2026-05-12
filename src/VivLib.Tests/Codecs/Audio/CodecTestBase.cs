@@ -5,7 +5,7 @@ namespace TheXDS.Vivianne.Codecs.Audio;
 
 internal abstract class CodecTestBase<TCodec> where TCodec : notnull, IAudioCodec, new()
 {
-    private const double AcceptableCorrelation = 0.9999;
+    private const double AcceptableCorrelation = 1.0;
 
     private static readonly PtHeader Stereo22050 = new();
 

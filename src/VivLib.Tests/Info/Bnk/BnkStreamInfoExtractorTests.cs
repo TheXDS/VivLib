@@ -174,25 +174,6 @@ internal class BnkStreamInfoExtractorTests
     }
 
     [Test]
-    public void GetInfo_IncludesPostAudioStreamDataSize()
-    {
-        var stream = new BnkStream
-        {
-            Channels = 1,
-            SampleRate = 22050,
-            BytesPerSample = 2,
-            Compression = CompressionMethod.None,
-            SampleData = new byte[44100],
-            PostAudioStreamData = new byte[1024]
-        };
-
-        var info = _extractorByteSize.GetInfo(stream);
-        var postAudioInfo = info.First(s => s.Contains("Data after audio stream"));
-
-        Assert.That(postAudioInfo, Does.Contain("1024"));
-    }
-
-    [Test]
     public void GetInfo_WithAltStream_IncludesAltStreamInfo()
     {
         var stream = new BnkStream

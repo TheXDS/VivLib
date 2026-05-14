@@ -72,63 +72,74 @@ public class EaAdpcmCodec : IAudioCodec
         using var ms = new MemoryStream();
         using var bw = new BinaryWriter(ms);
         bw.MarshalWriteStruct(chunkHeader);
-        int lPrevL = chunkHeader.LeftChannel.PreviousSample;
-        int lCurL = chunkHeader.LeftChannel.CurrentSample;
-        int lPrevR = chunkHeader.RightChannel.PreviousSample;
-        int lCurR = chunkHeader.RightChannel.CurrentSample;
+
         const int SubBlockSamples = 0x1C;
-        for (int baseFrame = 0; baseFrame < totalFrames; baseFrame += SubBlockSamples)
+        int totalSubBlocks = totalFrames / SubBlockSamples;
+        int remainingSamples = totalFrames % SubBlockSamples;
+        int curL = 0, prevL = 0;
+        int curR = 0, prevR = 0;
+
+        for (int block = 0; block < totalSubBlocks; block++)
         {
-            int count = Math.Min(SubBlockSamples, totalFrames - baseFrame);
-            (int predL, int dL) = ChoosePredictorAndShift(pcm, baseFrame, count, true, lPrevL, lCurL);
-            (int predR, int dR) = ChoosePredictorAndShift(pcm, baseFrame, count, false, lPrevR, lCurR);
-            byte predictors = (byte)((predL << 4) | (predR & 0x0F));
-            byte shifts = (byte)((((dL - 8) & 0x0F) << 4) | ((dR - 8) & 0x0F));
-            bw.Write(predictors);
-            bw.Write(shifts);
-            int c1L = (int)EATable[predL];
-            int c2L = (int)EATable[predL + 4];
-            int c1R = (int)EATable[predR];
-            int c2R = (int)EATable[predR + 4];
-            int stepL = 1 << (28 - dL);
-            int stepR = 1 << (28 - dR);
-            for (int i = 0; i < count; i++)
-            {
-                int idx = (baseFrame + i) * 2;
-                int xL = pcm[idx + 0];
-                int xR = pcm[idx + 1];
-                long residualL = ((long)xL << 8) - ((long)lCurL * c1L + (long)lPrevL * c2L);
-                long residualR = ((long)xR << 8) - ((long)lCurR * c1R + (long)lPrevR * c2R);
-                int nL = QuantizeNibble(residualL, stepL);
-                int nR = QuantizeNibble(residualR, stepR);
-                byte packed = (byte)(((nL & 0x0F) << 4) | (nR & 0x0F));
-                bw.Write(packed);
-                long reconL = ReconstructSample(nL, dL, lCurL, lPrevL, c1L, c2L);
-                long reconR = ReconstructSample(nR, dR, lCurR, lPrevR, c1R, c2R);
-                short yL = Clip16BitSample(reconL);
-                short yR = Clip16BitSample(reconR);
-                lPrevL = lCurL;
-                lCurL = yL;
-                lPrevR = lCurR;
-                lCurR = yR;
-            }
+            int baseFrame = block * SubBlockSamples;
+            EncodeSubBlock(bw, pcm, baseFrame, SubBlockSamples, ref curL, ref prevL, ref curR, ref prevR);
         }
+
+        if (remainingSamples > 0)
+        {
+            int baseFrame = totalSubBlocks * SubBlockSamples;
+            EncodeSubBlock(bw, pcm, baseFrame, remainingSamples, ref curL, ref prevL, ref curR, ref prevR);
+        }
+
         return ms.ToArray();
     }
 
-    private static long ReconstructSample(int nibble, int d, int curSample, int prevSample, int c1, int c2)
+    private static void EncodeSubBlock(BinaryWriter bw, short[] pcm, int baseFrame, int count,
+        ref int curL, ref int prevL, ref int curR, ref int prevR)
     {
-        int signExtended = (nibble << 28) >> 28;
-        long scaled = (long)signExtended << (28 - d);
-        long sample = (scaled + ((long)curSample * c1) + ((long)prevSample * c2) + 0x80L) >> 8;
-        return sample;
+        (int predL, int dL, int newCurL, int newPrevL) = FindBestParams(pcm, baseFrame, count, true, curL, prevL);
+        (int predR, int dR, int newCurR, int newPrevR) = FindBestParams(pcm, baseFrame, count, false, curR, prevR);
+        byte predictors = (byte)((predL << 4) | (predR & 0x0F));
+        byte shifts = (byte)((((dL - 8) & 0x0F) << 4) | ((dR - 8) & 0x0F));
+        bw.Write(predictors);
+        bw.Write(shifts);
+        int c1L = (int)EATable[predL];
+        int c2L = (int)EATable[predL + 4];
+        int c1R = (int)EATable[predR];
+        int c2R = (int)EATable[predR + 4];
+        int stepL = 1 << (28 - dL);
+        int stepR = 1 << (28 - dR);
+        for (int i = 0; i < count; i++)
+        {
+            int idx = (baseFrame + i) * 2;
+            int xL = pcm[idx + 0];
+            int xR = pcm[idx + 1];
+            long residualL = ((long)xL << 8) - ((long)curL * c1L + (long)prevL * c2L);
+            long residualR = ((long)xR << 8) - ((long)curR * c1R + (long)prevR * c2R);
+            int nL = QuantizeNibble(residualL, stepL);
+            int nR = QuantizeNibble(residualR, stepR);
+            byte packed = (byte)(((nL & 0x0F) << 4) | (nR & 0x0F));
+            bw.Write(packed);
+            long dequantL = (int)((nL << 28)) >> dL;
+            long dequantR = (int)((nR << 28)) >> dR;
+            long reconL = (dequantL + (long)curL * c1L + (long)prevL * c2L + 0x80L) >> 8;
+            long reconR = (dequantR + (long)curR * c1R + (long)prevR * c2R + 0x80L) >> 8;
+            short yL = Clip16BitSample(reconL);
+            short yR = Clip16BitSample(reconR);
+            prevL = curL;
+            curL = yL;
+            prevR = curR;
+            curR = yR;
+        }
     }
 
-    private static (int predictorIndex, int d) ChoosePredictorAndShift(short[] pcm, int baseFrame, int count, bool leftChannel, int prevSample, int curSample)
+    private static (int pred, int d, int curSample, int prevSample) FindBestParams(short[] pcm, int baseFrame, int count, bool leftChannel, int initialCur, int initialPrev)
     {
+        long bestErr = long.MaxValue;
         int bestPred = 0;
         int bestD = 23;
-        long bestErr = long.MaxValue;
+        int bestCur = initialCur;
+        int bestPrev = initialPrev;
         for (int pred = 0; pred <= 3; pred++)
         {
             int c1 = (int)EATable[pred];
@@ -136,39 +147,50 @@ public class EaAdpcmCodec : IAudioCodec
             for (int d = 8; d <= 23; d++)
             {
                 long err = 0;
-                int sPrev = prevSample;
-                int sCur = curSample;
+                int sPrev = initialPrev;
+                int sCur = initialCur;
+                bool earlyBreak = false;
                 for (int i = 0; i < count; i++)
                 {
                     int idx = (baseFrame + i) * 2 + (leftChannel ? 0 : 1);
                     int x = pcm[idx];
                     long residual = ((long)x << 8) - ((long)sCur * c1 + (long)sPrev * c2);
-                    int n = QuantizeNibble(residual, 1 << (28 - d));
-                    long recon = ReconstructSample(n, d, sCur, sPrev, c1, c2);
+                    int step = 1 << (28 - d);
+                    int n = QuantizeNibble(residual, step);
+                    long dequant = (int)(n << 28) >> d;
+                    long recon = (dequant + (long)sCur * c1 + (long)sPrev * c2 + 0x80L) >> 8;
                     short y = Clip16BitSample(recon);
                     long e = (long)x - y;
                     err += e * e;
                     sPrev = sCur;
                     sCur = y;
-                    if (err >= bestErr) break;
+                    if (err >= bestErr)
+                    {
+                        earlyBreak = true;
+                        break;
+                    }
                 }
-                if (err < bestErr)
+                if (!earlyBreak && err < bestErr)
                 {
                     bestErr = err;
                     bestPred = pred;
                     bestD = d;
+                    bestCur = sCur;
+                    bestPrev = sPrev;
                 }
             }
         }
-        return (bestPred, bestD);
+        return (bestPred, bestD, bestCur, bestPrev);
     }
 
     private static int QuantizeNibble(long target, int step)
     {
-        long q = step > 0 ? (target + (step >> 1)) / step : (target - (step >> 1)) / step;
-        if (q < -8) q = -8;
-        if (q > 7) q = 7;
-        return (int)(q & 0x0F);
+        long signedNibble = target >= 0
+            ? (target + (step >> 1)) / step
+            : -((-target + (step >> 1)) / step);
+        if (signedNibble < -8) signedNibble = -8;
+        if (signedNibble > 7)  signedNibble = 7;
+        return (int)(signedNibble & 0x0F);
     }
 
     private static int HINIBBLE(byte byteValue)

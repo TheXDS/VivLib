@@ -6,6 +6,7 @@ using TheXDS.Vivianne.Models.Audio.Mus;
 using TheXDS.Vivianne.Resources;
 using static TheXDS.Vivianne.Serializers.Audio.PtHeaderSerializerHelper;
 using St = TheXDS.Vivianne.Resources.Strings.Serializers.Audio.Mus.MusSerializer;
+
 namespace TheXDS.Vivianne.Serializers.Audio.Mus;
 
 public partial class MusSerializer

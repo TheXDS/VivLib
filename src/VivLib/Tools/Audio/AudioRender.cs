@@ -123,12 +123,27 @@ public static class AudioRender
     /// <returns>A byte array that contains the entire rendered .WAV file.</returns>
     public static byte[] RenderData(AudioStreamBase blob, byte[] data)
     {
-        int fileSize = 36 + data.Length;
+        var wavStream = new MemoryStream();
+        wavStream.Write(RenderWavHeader(blob, data.Length));
+        wavStream.Write(blob.Channels > 1 && blob.Interleaved ? InterleaveAudioData(data, blob.Channels) : data);
+        return wavStream.ToArray();
+    }
+
+    /// <summary>
+    /// Renders the header of a .WAV file for the specified audio stream and
+    /// data length.
+    /// </summary>
+    /// <param name="blob">
+    /// Audio stream containing the properties for the .WAV file.
+    /// </param>
+    /// <param name="dataLength">Length of the audio data in bytes.</param>
+    /// <returns>A byte array containing the .WAV file header.</returns>
+    public static byte[] RenderWavHeader(AudioStreamBase blob, int dataLength)
+    {
         var wavStream = new MemoryStream();
         using var bw = new BinaryWriter(wavStream, Encoding.Latin1, true);
-
         bw.Write("RIFF"u8.ToArray());
-        bw.Write(fileSize);
+        bw.Write(36 + dataLength);
         bw.Write("WAVE"u8.ToArray());
         bw.Write("fmt "u8.ToArray());
         bw.Write(Marshal.SizeOf<WavFmtHeader>());
@@ -142,8 +157,7 @@ public static class AudioRender
             BitsPerSample = (short)(blob.BytesPerSample * 8)
         });
         bw.Write("data"u8.ToArray());
-        bw.Write(data.Length);
-        bw.Write(blob.Channels > 1 && blob.Interleaved ? InterleaveAudioData(data, blob.Channels) : data);
+        bw.Write(dataLength);
         return wavStream.ToArray();
     }
 

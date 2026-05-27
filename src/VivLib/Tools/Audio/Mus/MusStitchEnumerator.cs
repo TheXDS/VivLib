@@ -23,7 +23,7 @@ public sealed class MusStitchEnumerator : IEnumerator<AsfFile>, IEnumerator
     private readonly int[] _indices;
     private readonly int _loopStart;
     private int _currentIndex = -1;
-
+    
     /// <summary>
     /// Initializes a new instance of the <see cref="MusStitchEnumerator"/>
     /// class.
@@ -46,8 +46,14 @@ public sealed class MusStitchEnumerator : IEnumerator<AsfFile>, IEnumerator
         (_indices, _loopStart) = MapStitcher.Stitch(map);
     }
 
+    /// <summary>
+    /// Gets a value indicating whether the enumerator should loop back to the
+    /// start of the sequence when the end is reached.
+    /// </summary>
+    public bool Looping { get; init; }
+
     /// <inheritdoc/>
-    public AsfFile Current => _mus.AsfSubStreams[_indices[_currentIndex]];
+    public AsfFile Current => _mus.AsfSubStreams.Values.ElementAt(_indices[_currentIndex]);
 
     object IEnumerator.Current => Current;
 
@@ -70,7 +76,7 @@ public sealed class MusStitchEnumerator : IEnumerator<AsfFile>, IEnumerator
         else
         {
             _currentIndex = Array.IndexOf(_indices, _loopStart);
-            return true;
+            return Looping;
         }
     }
 

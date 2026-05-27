@@ -5,6 +5,7 @@ using TheXDS.Vivianne.Misc;
 using TheXDS.Vivianne.Models.Audio.Base;
 using TheXDS.Vivianne.Models.Audio.Bnk;
 using TheXDS.Vivianne.Models.Audio.Mus;
+using TheXDS.Vivianne.Tools.Audio.Mus;
 
 namespace TheXDS.Vivianne.Tools.Audio;
 
@@ -168,23 +169,61 @@ public static class AudioRender
     }
 
     /// <summary>
-    /// Combines all stream sub-inputStreams in a <see cref="MusFile"/> into a
+    /// Combines all ASF sub-streams in a <see cref="MusFile"/> into a
     /// single stream of audio samples.
     /// </summary>
     /// <param name="mus">Mus file to join.</param>
     /// <returns>
     /// A byte array that contains the joint audio samples from all ASF
-    /// sub-inputStreams in the MUS file.
+    /// sub-streams in the MUS file.
     /// </returns>
     public static (AudioStreamBase, byte[]) JoinAllStreams(MusFile mus)
     {
-        var rawSteram = new List<byte>();
+        using MemoryStream ms = new();
+
         AsfFile commonHeader = mus.AsfSubStreams.Values.First();
         foreach (var k in mus.AsfSubStreams.Values)
         {
-            rawSteram.AddRange([.. k.AudioBlocks.SelectMany(p => p)]);
+            ms.Write(k.AudioBlocks.SelectMany(p => p).ToArray());
         }
-        return (commonHeader, [.. rawSteram]);
+        return (GetJointStreamHeaderFromMus(mus.AsfSubStreams.Values), ms.ToArray());
+    }
+
+    /// <summary>
+    /// Combines all mapped ASF sub-streams in a <see cref="MusFile"/> into a
+    /// single stream of audio samples.
+    /// </summary>
+    /// <param name="mus">Mus file to join.</param>
+    /// <param name="map">Map file to use to enumerate the streams.</param>
+    /// <returns>
+    /// A byte array that contains the joint audio samples from all ASF
+    /// sub-streams in the MUS file.
+    /// </returns>
+    public static (AudioStreamBase, byte[]) JoinAllStreams(MusFile mus, MapFile map)
+    {
+        using MemoryStream ms = new();
+        using (var enumerator = new MusStitchEnumerator(mus, map) { Looping = false })
+        {
+            while (enumerator.MoveNext())
+            {
+                ms.Write(enumerator.Current.AudioBlocks.SelectMany(p => p).ToArray());
+            }
+        }
+        return (GetJointStreamHeaderFromMus(mus.AsfSubStreams.Values), ms.ToArray());
+    }
+
+    private static AudioStreamHeader GetJointStreamHeaderFromMus(IEnumerable<AsfFile> inputStreams)
+    {
+        var streams = inputStreams.ToArray();
+        return new AudioStreamHeader()
+        {
+            BytesPerSample = streams.Select(p => p.BytesPerSample).Quorum(streams.Length),
+            Compression = streams.Select(p => p.Compression).Quorum(streams.Length),
+            Channels = streams.Select(p => p.Channels).Quorum(streams.Length),
+            SampleRate = streams.Select(p => p.SampleRate).Quorum(streams.Length),
+            LoopStart = streams.Select(p => p.LoopStart).Quorum(streams.Length),
+            LoopEnd = streams.Select(p => p.LoopEnd).Quorum(streams.Length),
+        };
     }
 
     /// <summary>

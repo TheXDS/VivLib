@@ -1,9 +1,5 @@
 ﻿using System.Runtime.InteropServices;
-using TheXDS.Vivianne.Models.Audio.Mus;
-using TheXDS.Vivianne.Resources.Strings.Serializers.Audio.Mus;
-using TheXDS.Vivianne.Serializers;
 using TheXDS.Vivianne.Serializers.Audio;
-using TheXDS.Vivianne.Tools.Audio;
 
 namespace TheXDS.Vivianne.Codecs.Audio;
 
@@ -96,7 +92,6 @@ internal abstract class CodecTestBase<TCodec> where TCodec : notnull, IAudioCode
         Stereo22050.AudioValues[PtAudioHeaderField.Channels] = 2;
         const double durationSec = 60.0;
         double sampleRate = Stereo22050.AudioValues[PtAudioHeaderField.SampleRate].Value;
-
         int totalSamples = (int)(sampleRate * durationSec);
         _pcm = new short[totalSamples * 2];
         for (int i = 0; i < totalSamples; i++)
@@ -132,7 +127,6 @@ internal abstract class CodecTestBase<TCodec> where TCodec : notnull, IAudioCode
             int diff = original[i] - decoded[i];
             sumSqErr += diff * diff;
             if (Math.Abs(diff) > maxDiff) maxDiff = Math.Abs(diff);
-
             double o = original[i];
             double d = decoded[i];
             sumOrig += o;
@@ -144,9 +138,7 @@ internal abstract class CodecTestBase<TCodec> where TCodec : notnull, IAudioCode
 
         double meanOrig = sumOrig / len;
         double meanDec = sumDec / len;
-        double corr = (sumCross / len - meanOrig * meanDec)
-                    / Math.Sqrt((sumOrig2 / len - meanOrig * meanOrig) * (sumDec2 / len - meanDec * meanDec));
-
+        double corr = (sumCross / len - meanOrig * meanDec) / Math.Sqrt((sumOrig2 / len - meanOrig * meanOrig) * (sumDec2 / len - meanDec * meanDec));
         return corr;
     }
 }

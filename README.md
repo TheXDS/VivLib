@@ -31,9 +31,9 @@ File format            | Read | Write
 ---------------------- | :--: | :-:
 `.VIV`                 |  ✔️  |  ✔️
 `.FSH`, `.QFS`         |  ✔️  |  ✔️[^1]
-`.ASF`                 |  ✔️  |  ❌
-`.LIN`, `.MAP`, `.MUS` |  ✔️  |  ❌
-`.BNK`                 |  ✔️  |  ✔️[^2] [^3]
+`.ASF`, `.MUS`         |  ✔️  |  ✔️[^2]
+`.LIN`, `.MAP`         |  ✔️  |  ❌
+`.BNK`                 |  ✔️  |  ✔️[^3]
 
 #### Need For Speed 2 Specific
 File format     | Read | Write
@@ -88,8 +88,8 @@ Below you can find some file-specific highlights into features supported by *Viv
 - FCE cleanup tooling[^4]
 
 #### BNK
-- Read PCM/EA ADPCM data
-- Write PCM data
+- Read PCM/EA-ADPCM data
+- Write PCM/EA-ADPCM data
 - Edit loop data
 - Direct editing of PT Headers in general and audio tables
 - Alt-stream support
@@ -100,7 +100,7 @@ Below you can find some file-specific highlights into features supported by *Viv
 [^4]: This feature is a *Work In Progress* that is currently under development.
 
 ## Building VivLib
-To compile VivLib, the [SDK for .NET 8.0](https://dotnet.microsoft.com/) or a later version with a targeting pack for .NET 8.0 must be installed on the system.
+To compile VivLib, the [SDK for .NET 8.0](https://dotnet.microsoft.com/en-us/download/dotnet/8.0) or a later version with a targeting pack for .NET 8.0 must be installed on the system. You can also build VivLib targeting [.NET 10](https://dotnet.microsoft.com/en-us/download/dotnet/10.0), this enables a few small performance enhancements.
 
 ### Compiling VivLib
 ``` sh
@@ -128,7 +128,7 @@ The coverage results will be stored in `./Build/Coverage`
 ## Contribute
 
 ### Code contributions
-Please ferer to [CONTRIBUTING.md](./docs/CONTRIBUTING.md) for more information.
+Please refer to [CONTRIBUTING.md](./docs/CONTRIBUTING.md) for more information.
 
 ### Donations
 [![ko-fi](https://ko-fi.com/img/githubbutton_sm.svg)](https://ko-fi.com/W7W415UCHY)

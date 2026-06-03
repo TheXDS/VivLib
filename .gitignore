@@ -304,3 +304,4 @@ __pycache__/
 
 # MCART specific files
 **/.AssemblyAttributes
+.aider*

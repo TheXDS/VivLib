@@ -32,7 +32,7 @@ public enum TriangleFlags : int
     Semitrans = 8,
 
     /// <summary>
-    /// Flag specifically seen on NFS4's La Niña (Elni) car model with unknown
+    /// Flag specifically seen on NFS4's La NiÃ±a (Elni) car model with unknown
     /// purpose. Might be trash data.
     /// </summary>
     Unknown_Elni = 0x10,

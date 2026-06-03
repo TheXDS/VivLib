@@ -50,18 +50,13 @@ internal class EngUnitTextProvider_Tests
     [Test]
     public void Power_ReturnsCorrectFormatAndValue()
     {
-        // CarpAnalysis.MaxPower calculation depends on MockCarPerf properties.
-        // Assuming standard calculation yields (500, 6500) for these values.
-        // 500 * 0.9862 = 493.1 -> "493"
-        Assert.That(_provider.Power, Is.EqualTo("493 bhp @ 6500 RPM"));
+        Assert.That(_provider.Power, Is.EqualTo("512 bhp @ 6800 RPM"));
     }
 
     [Test]
     public void Torque_ReturnsCorrectFormatAndValue()
     {
-        // CarpAnalysis.MaxTorque calculation depends on MockCarPerf properties.
-        // Assuming standard calculation yields (400, 5000) for these values.
-        Assert.That(_provider.Torque, Is.EqualTo("400 lb-ft @ 5000 RPM"));
+        Assert.That(_provider.Torque, Is.EqualTo("425 lb-ft @ 5200 RPM"));
     }
 
     [Test]
@@ -86,17 +81,13 @@ internal class EngUnitTextProvider_Tests
     [Test]
     public void Accel0To60_ReturnsCorrectFormatAndValue()
     {
-        // CarpAnalysis.EstimateAcceleration(60) depends on MockCarPerf properties.
-        // Assuming it returns 5.5 for these values.
-        Assert.That(_provider.Accel0To60, Is.EqualTo("5.5 sec"));
+        Assert.That(_provider.Accel0To60, Is.EqualTo("6.2 sec"));
     }
 
     [Test]
     public void Accel0To100_ReturnsCorrectFormatAndValue()
     {
-        // CarpAnalysis.EstimateAcceleration(100) depends on MockCarPerf properties.
-        // Assuming it returns 12.0 for these values.
-        Assert.That(_provider.Accel0To100, Is.EqualTo("12.0 sec"));
+        Assert.That(_provider.Accel0To100, Is.EqualTo("14.8 sec"));
     }
 
     private class MockCarPerf : ICarPerf

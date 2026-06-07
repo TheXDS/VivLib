@@ -55,12 +55,18 @@ public abstract class FeDataTextProvider(ICarPerf source, CultureInfo? culture =
     /// <summary>
     /// Gets a string that describes the maximum torque of the vehicle.
     /// </summary>
+    /// <remarks>
+    /// The torque value is derived from the <see cref="ICarPerf.TorqueCurve"/>
+    /// which is in Newton-meters (N·m).  The displayed string currently labels
+    /// the value as lb-ft without converting the underlying number.  This will
+    /// be corrected in a future revision.
+    /// </remarks>
     public virtual string Torque
     {
         get
         {
             var (torque, rpm) = Analysis.MaxTorque;
-            return $"{torque.ToString("0", Culture)} lb-ft @ {rpm.ToString(Culture)} RPM";
+            return $"{(torque * 0.737562).ToString("0", Culture)} lb-ft @ {rpm.ToString(Culture)} RPM";
         }
     }
 

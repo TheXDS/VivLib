@@ -230,6 +230,7 @@ Small improvements to clarity are welcome, but **do not rewrite the entire codeb
 - **Branch naming:** `feature/42-add-bnk-write-support`, `fix/15-refpack-decode-error`
 - **Full contributing guide:** [docs/CONTRIBUTING.md](../../CONTRIBUTING.md)
 - **Issue tracker & PRs:** [github.com/TheXDS/VivLib](https://github.com/TheXDS/VivLib)
+ - **FAQ:** `docs/FAQ.md` — answers to common project questions
 
 ## Important Details
 

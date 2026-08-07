@@ -2,7 +2,7 @@
 
 ## Project Overview
 
-**VivLib** is a lightweight .NET 8 library for modding classic Need For Speed titles (NFS 2, 3, 4). It provides read-write support for EA game file formats including `.VIV`, `.FSH`/`.QFS` (textures), `.ASF`/`.MUS`/`.BNK` (audio), `.FCE` (3D car models), `.GEO`, and various car performance data formats.
+**VivLib** is a lightweight .NET 8+ library for modding classic Need For Speed titles (NFS 2, 3, 4). It provides read-write support for EA game file formats including `.VIV`, `.FSH`/`.QFS` (textures), `.ASF`/`.MUS`/`.BNK` (audio), `.FCE` (3D car models), `.GEO`, and various car performance data formats.
 
 - **Language:** C# (.NET 8.0 / .NET 10.0)
 - **Style:** Modern C# with implicit usings and nullable reference types enabled

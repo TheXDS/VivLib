@@ -10,20 +10,31 @@ using Fe4 = TheXDS.Vivianne.Models.Fe.Nfs4.FeData;
 namespace TheXDS.Vivianne.Tools.Misc;
 
 /// <summary>
-/// Implements a tool that will set the serialNumber number of all internal files in a VIV file.
+/// Implements a tool that will set the serialNumber number of all internal
+/// files in a VIV file.
 /// </summary>
 public class SerialNumberSetter : SerialNumberAnalyzerBase
 {
     private SerialNumberSetter() { }
 
     /// <summary>
-    /// Sets the serialNumber number for specific entries in the provided <see cref="VivFile"/> directory.
+    /// Sets the serialNumber number for specific entries in the provided
+    /// <see cref="VivFile"/> directory.
     /// </summary>
-    /// <remarks>This method updates the serialNumber number for entries in the <paramref name="viv"/> directory
-    /// that match known extensions or specific file names. If an entry is found and successfully parsed, its serialNumber
-    /// number is updated, and the modified data is written back to the directory.</remarks>
-    /// <param name="viv">The <see cref="VivFile"/> containing the directory to update. Cannot be <see langword="null"/>.</param>
-    /// <param name="serialNumber">The serialNumber number to assign to the relevant entries.</param>
+    /// <remarks>
+    /// This method updates the serialNumber number for entries in the
+    /// <paramref name="viv"/> directory that match known extensions or
+    /// specific file names. If an entry is found and successfully parsed, its
+    /// serial number is updated, and the modified data is written back to the
+    /// directory.
+    /// </remarks>
+    /// <param name="viv">
+    /// The <see cref="VivFile"/> containing the directory to update. Cannot be
+    /// <see langword="null"/>.
+    /// </param>
+    /// <param name="serialNumber">
+    /// The serialNumber number to assign to the relevant entries.
+    /// </param>
     public static void SetSerialNumber(VivFile viv, ushort serialNumber)
     {
         ArgumentNullException.ThrowIfNull(viv);

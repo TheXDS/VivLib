@@ -32,7 +32,7 @@ jobs:
       - name: build-docfx
         uses: clFaster/docfx-build-action@v1
         with:
-          docfx-file-path: docfx.json          
+          docfx-file-path: docfx.json
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:

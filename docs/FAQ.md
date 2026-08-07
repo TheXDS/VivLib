@@ -36,7 +36,9 @@ I'll be honest: Probably not, or at least not well.
 
 There have been reports from my early beta users where the UI was just completely broken. This is because I'm using bleeding edge libraries and tools, which sadly do not properly support older versions of Windows.
 
-As far as I'm aware, Windows 7 does run Vivianne just fine **with aero disabled**. I cannot test myself right now, as I do not have a spare machine where I could install Win7 and try, so my best test case was made by using a virtual machine which, does not have Aero.
+~~As far as I'm aware,~~ Windows 7 does run Vivianne just fine ~~**with aero disabled**. I cannot test myself right now, as I do not have a spare machine where I could install Win7 and try, so my best test case was made by using a virtual machine which, does not have Aero.~~
+
+> Update: Yes. Managed to verify it, and currently, it does work. The only scenario I did not test was if you customized the shell with themes that modify Windows itself. But it's more or less a given that when using something outside of the manufacturer's support, things can break.
 
 Older versions of Windows are completely out of the question.
 
@@ -51,3 +53,8 @@ Ok, back to VivLib...
 Not at all. OpenNFS (or, more specifically [LibOpenNFS](https://github.com/OpenNFS/LibOpenNFS)) is a project written in C++ with high performance asset loading and parsing in mind, for a game that supports assets from several NFS games in one place. Up until recently, it didn't support writing (and, there's only a scaffold on how to implement that funcitonality at the moment)
 
 VivLib on the other hand, is thought of as a modtool-first, non-gaming library that tries to include full read and write support for those same assets. While you could technically use VivLib with something like [Unity](https://unity.com), it's not the intended use case.
+
+### 11. And, how about those new repos popping all over github?
+Again, no. This repo was made for me, and for anyone that could find it useful in any way. If any of those other repos works better for you, great! We are a collective community of enthusiasts, and at least to the best of my knowledge it's not like we are in any kind of race or competition to get the best parsers or an app that everyone likes. I use VivLib/Vivianne because I wanted to have a tool I understood fully, something that gave me the joy of learning and understanding NFS file formats while I made my own mods.
+
+I'm happy to see that the classic NFS saga is getting attention and love. That's all that matters.

@@ -1,4 +1,5 @@
-﻿using System.Runtime.InteropServices;
+﻿using System.Text;
+using System.Runtime.InteropServices;
 using TheXDS.Vivianne.Models.Audio.Mus;
 using St = TheXDS.Vivianne.Resources.Strings.Serializers.Audio.Mus.MusSerializer;
 
@@ -20,7 +21,7 @@ public partial class MusSerializer : ISerializer<MusFile>, ISerializer<AsfFile>
     /// <inheritdoc/>
     public MusFile Deserialize(Stream stream)
     {
-        using BinaryReader br = new(stream);
+        using BinaryReader br = new(stream, Encoding.Latin1, leaveOpen: true);
         var mus = new MusFile();
         do
         {
@@ -33,7 +34,7 @@ public partial class MusSerializer : ISerializer<MusFile>, ISerializer<AsfFile>
     /// <inheritdoc/>
     public void SerializeTo(MusFile entity, Stream stream)
     {
-        using BinaryWriter bw = new(stream);
+        using BinaryWriter bw = new(stream, Encoding.Latin1, leaveOpen: true);
         foreach (AsfFile asf in entity.AsfSubStreams.Values)
         {
             WriteAsf(asf, bw);
@@ -43,13 +44,13 @@ public partial class MusSerializer : ISerializer<MusFile>, ISerializer<AsfFile>
     /// <inheritdoc/>
     public void SerializeTo(AsfFile entity, Stream stream)
     {
-        using BinaryWriter bw = new(stream);
+        using BinaryWriter bw = new(stream, Encoding.Latin1, leaveOpen: true);
         WriteAsf(entity, bw);
     }
 
     AsfFile IOutSerializer<AsfFile>.Deserialize(Stream stream)
     {
-        using BinaryReader br = new(stream);
+        using BinaryReader br = new(stream, Encoding.Latin1, leaveOpen: true);
         return ReadAsfFile(br) ?? throw new InvalidDataException(St.InvalidAsfStream);
     }
 }

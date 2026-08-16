@@ -10,37 +10,35 @@ This document outlines how you can contribute effectively and consistently.
 
 ---
 
-## 🧭 Table of Contents
+## Table of Contents
 
 - [Contributing](#contributing)
-  - [🧭 Table of Contents](#-table-of-contents)
-  - [🤝 Code of Conduct](#-code-of-conduct)
-  - [🚀 How to Contribute](#-how-to-contribute)
+  - [Table of Contents](#table-of-contents)
+  - [Code of Conduct](#code-of-conduct)
+  - [How to Contribute](#how-to-contribute)
     - [Reporting Bugs](#reporting-bugs)
     - [Requesting Features](#requesting-features)
     - [Submitting Changes](#submitting-changes)
-  - [🧩 Development Setup](#-development-setup)
-  - [🧱 Coding Guidelines](#-coding-guidelines)
+  - [Development Setup](#development-setup)
+  - [Coding Guidelines](#coding-guidelines)
     - [Notes on AI usage](#notes-on-ai-usage)
     - [Notes on SOLID](#notes-on-solid)
-  - [💬 Commit Guidelines](#-commit-guidelines)
-- [🔄 Pull Request Process](#-pull-request-process)
-- [🕒 Release Philosophy](#-release-philosophy)
-- [💡 Questions or Ideas?](#-questions-or-ideas)
-- [⚖️ License](#️-license)
+  - [Commit Guidelines](#commit-guidelines)
+- [Pull Request Process](#pull-request-process)
+- [Release Philosophy](#release-philosophy)
+- [Questions or Ideas?](#questions-or-ideas)
+- [License](#license)
 
 ---
 
-<a name="code-of-conduct"></a>
-## 🤝 Code of Conduct
+## Code of Conduct
 VivLib aims to foster a friendly, open, and respectful environment for all contributors.  
 Be considerate, constructive, and supportive when engaging with others.  
 Harassment, discrimination, or aggressive behavior will not be tolerated.
 
 If issues arise, please contact me directly or open a private discussion.
 
-<a name="how-to-contribute"></a>
-## 🚀 How to Contribute
+## How to Contribute
 There are several ways to contribute:
 
 ### Reporting Bugs
@@ -74,8 +72,7 @@ If you want to contribute code:
 5. Create a [pull request](https://github.com/TheXDS/VivLib/pulls). Wait for it to be approved and merged.
 6. 💵 Profit.
 
-<a name="development-setup"></a>
-## 🧩 Development Setup
+## Development Setup
 VivLib does not need a complex setup. You can work on any OS supported by .NET.
 You can use any editor/IDE you want, as long as it supports the version of the .NET SDK that VivLib targets.
 > Note: VivLib uses the new `SLNX` format, so most legacy environments might not be able to understand it. If this is the case, do **NOT** push an `.sln` file if one is generated. You might want to add `*.sln` to your `.gitignore` if it's not already there.
@@ -92,8 +89,7 @@ You can use any editor/IDE you want, as long as it supports the version of the .
    dotnet build
    ```
 
-<a name="coding-guidelines"></a>
-## 🧱 Coding Guidelines
+## Coding Guidelines
 - Follow the style conventions of C#12.
 - Keep functions small, clear, and testable, preferably no more than 3 levels of indentation. If you need more than that, re-think your logic. I'd like to avoid extremely long or complex methods as much as possible.
 - User-facing strings should be in a resource file. I want to get rid of the user-facing strings already present in code, so I would not like to add even more. Magic strings, where a file format requires it, are acceptable.
@@ -117,11 +113,12 @@ If you include AI-generated code, please pay special attention to:
 - Correctness of generated unit-test (I know you'll do this one, I would)
 - Removal of redundant in-code comments — those generally just add unwanted noise.
 - Most definitely, **Test the code**. AI coding agents are known to hallucinate a lot, especially with obscure or very recent frameworks.
+- You're not rewriting half of VivLib to add a simple function (AIs may do this from time to time, umprompted)
 
 ### Notes on SOLID
 When Uncle Bob came up with SOLID, he just wanted us to deal with less headaches for maintainability in the future. It's a laudable goal. But then, some people took this idea and really ran with it, to the point where it became a bit ridiculous.
 
-Use SOLID, but responsibly. Do not create absurd levels of abstraction layers just because of "Single responsibility" and "Interface segregation". Yes, a method should only have access to the members they really need. But, if a bit of a larger interface could be used by two different methods that have only slightly different requirements then it would not make sense to segregate and create a bunch of tiny interfaces just so that you are adhering strictly to ISP or SRP.
+Use SOLID, but responsibly. Do not create absurd levels of abstraction layers just because of "Single responsibility" and "Interface segregation". Yes, a method should only have access to the members it really needs. But, if a bit of a larger interface could be used by two different methods that have only slightly different requirements then it would not make sense to segregate and create a bunch of tiny interfaces just so that you are adhering strictly to ISP or SRP.
 
 Single responsibility is good. But if stuff is too closely related, then maybe they could be grouped together. Codecs and serializers are a good example. SRP/ISP could have dictated that I should have one interface and class each for reading and for writing. Well, as far as I know, there's only one correct way to serialize an FCE model. Alternate implementations that yield the same results and have the exact same effect would not make any sense, so having an interface just so that I can replace the implementation of the serializer part is unnecessary.
 
@@ -131,8 +128,7 @@ Case in point: Some religoiusly (and, allegedly "_clean_") SOLID codebases I've 
 
 There are uses and places for this. VivLib is not necessarily one of them.
 
-<a name="commit-guidelines"></a>
-## 💬 Commit Guidelines
+## Commit Guidelines
 We want to use [Conventional Commits](https://www.conventionalcommits.org/)
  for clarity and automation. I went through enough confusion in Vivianne already 😅
 
@@ -143,26 +139,23 @@ fix: correct buffer overflow in decoder
 docs: update contributing guidelines
 test: add unit tests for EA-ADPCM encoder
 ```
-<a name="pull-request-process"></a>
-# 🔄 Pull Request Process
+
+# Pull Request Process
 1. Ensure all tests pass.
 2. Update documentation if behavior changes.
 3. Reference any related issues using keywords (e.g. `Fixes #42`).
 4. Wait for review and address any feedback.
 5. Once approved, your PR will be merged.
 
-<a name="release-philosophy"></a>
-# 🕒 Release Philosophy
+# Release Philosophy
 As I said, VivLib follows a "release when ready" approach — there’s no strict merge window.  
 When enough meaningful fixes or features have been added, a new version is tagged and released.  
 If your contribution is large but isolated, we might create a minor release for it; again, fork/issues activity and schedules permitting.
 
-<a name="questions-or-ideas"></a>
-# 💡 Questions or Ideas?
+# Questions or Ideas?
 If you're unsure about something, open a discussion or issue before coding — I'd rather talk through ideas early than review unnecessary code later.
 
-<a name="license"></a>
-# ⚖️ License
+# License
 By contributing, you agree that your contributions will be licensed under the same license as the project.
 
 Make everyone's lawyers happy and see the [LICENSE](../LICENSE) file for details.

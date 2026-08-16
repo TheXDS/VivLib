@@ -15,7 +15,7 @@ Inside an SHPI file, there's a number of structures that serve a specific purpos
  Offset  | Length                     | Description
 -------- | -------------------------- | ---
 `0x0000` | 16 bytes                   | [File header](#file-header). Contains basic information for parsing and reading the SHPI file.
-`0x0010` | Multiples of 8             | [SHPI blob entries](#shpi-blob-entry). Each one consumes 8 bytes.
+`0x0010` | 8 + null-terminated filename | [SHPI blob entries](#shpi-blob-entry). Each entry is 8 bytes plus a 4-byte ID string.
 Varies   | Often `0`, varies          | [Optional global data](#global-shpi-data). Some games store arbitrary data associated with the entire SHPI here.
 Varies   | From offset to end of file | [Data pool](#shpi-data-pool). Entries reference offsets in this area to Mark as their own data.
 
@@ -62,6 +62,51 @@ You can consider this area as either _"The footer of the header"_ or as _"Data i
 Depending on your own interpretation of the [global SHPI data](#global-shpi-data) section, this block officially starts immediately after the directory entries or at the very first offset referenced from the directory entry table. It includes a non-structured pool of all the raw data in the SHPI file.
 
 A parser can segment and separate this area into chunks wherever there is a reference to an offset. As mentioned before, this is necessary because there is no data within the SHPI blob directory that specifies the size of each blob.
+
+## File Size Calculation
+
+The total file size of an SHPI file can be calculated from its directory entries using the following formula:
+
+```
+FileSize = 16 + Σ(EntryDataSize + 8)
+```
+
+Where:
+- `16` is the fixed size of the file header
+- `EntryDataSize` is the size of each blob's data in the pool (from the blob's pixel data, footers, and any embedded palettes)
+- `8` is the size of each directory entry struct
+
+> Note: Because the SHPI format does not explicitly store blob sizes in the directory, calculating the total file size requires parsing the data pool to determine where each blob's data ends and the next begins. This is done by sorting entries by offset and computing the difference between adjacent offsets.
+
+## Architecture Notes
+
+### Comparison to VIV Format
+
+The SHPI (FSH) format is conceptually similar to the VIV format in that both use a directory of entries followed by a data pool. However, there are key differences:
+
+| Aspect          | SHPI (FSH) Format               | VIV Format                    |
+|-----------------|---------------------------------|-------------------------------|
+| Entry size      | Fixed 8 bytes + filename (unused) | Fixed 8 bytes + null-terminated filename |
+| Data boundaries | Inferred from next entry's offset | Explicit `Length` field       |
+| Data pool       | May contain global data (e.g., palettes) | Raw file contents only      |
+| File metadata   | 16-byte blob header per entry   | None (flat container)         |
+| Magic marker    | `SHPI` (or `LZ` if compressed)  | `BIGF`                        |
+| Compression     | Optional LZ compression         | None                          |
+| Main purpose    | Texture dictionary              | General file archive          |
+| Endianness      | Little-endian                   | Big-endian                    |
+
+### Use Cases in NFS Games
+
+SHPI files are used across the Need For Speed series (NFS 2, 3, 4) and other EA games to bundle texture assets, including:
+
+- UI textures and HUD elements
+- Car body and interior textures
+- Track and environment textures
+- Dashboard and instrument cluster graphics
+- Color palettes for indexed textures
+- Metal bin attachments for runtime texture management
+
+The format's ability to store embedded palettes, dashboard data, and other attachments makes it versatile for a wide range of visual assets beyond simple bitmap textures.
 
 ## Data contained in the file
 As mentioned earlier, SHPI files are generally used to store textures. For now, we'll explore the data format for textures within the SHPI file.

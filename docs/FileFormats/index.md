@@ -2,6 +2,8 @@
 
 This section documents the binary file formats used by Electronic Arts in Need For Speed 2, 3, and 4, as reverse-engineered and implemented in VivLib.
 
+> This list is not exhaustive, and it is in expansion. Check later if you don't see a format described here.
+
 ## Formats
 
 | Format | Description | Files |

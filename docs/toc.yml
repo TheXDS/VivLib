@@ -8,22 +8,22 @@
       href: IAQ.md
 - name: File Formats
   href: FileFormats/
+  homepage: FileFormats/index.md
   items:
     - name: File Format Specifications
       href: index.md
-      homepage: FileFormats/index.md
     - name: VIV Archive
-      href: FileFormats/VIV-specs.md
+      href: VIV-specs.md
     - name: FCE 3D Mesh
-      href: FileFormats/FCE-specs.md
+      href: FCE-specs.md
     - name: SHPI/FSH Texture Collections
-      href: FileFormats/SHPI-specs.md
+      href: SHPI-specs.md
     - name: Car Performance Data
-      href: FileFormats/CarPerf-specs.md
+      href: CarPerf-specs.md
     - name: FeData Localization Text
-      href: FileFormats/FeData-specs.md
+      href: FeData-specs.md
     - name: NFS 3 Unofficial Specs (legacy)
-      href: FileFormats/unofficial_nfs3_file_specs_10.txt
+      href: unofficial_nfs3_file_specs_10.txt
 - name: API Documentation
   href: api/
   homepage: api/index.md

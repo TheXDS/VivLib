@@ -2,6 +2,8 @@
 
 In this document we'll explore the VIV file format used by Electronic Arts in their late 90's and early 2000's games, particularly the Need For Speed series.
 
+> Note: This does not include other VIV variants, such as `BIGH` or `BIG4`, because VivLib is currently focused on Need For Speed games, and I do not own other games that use these formats just yet. Therefore, the only format I currently support is `BIGF`, as used in NFS.
+
 ## Summary
 
 The VIV file format (with the `.viv` file extension) is a generic archive format used extensively by Electronic Arts to bundle multiple game assets into a single file. It functions as a simple flat-file container with a directory of file names, offsets, and lengths, followed by a data pool containing the actual file contents.

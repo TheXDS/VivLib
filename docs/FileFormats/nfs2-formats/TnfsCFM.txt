@@ -1,0 +1,119 @@
+**************************************************************************
+*                                                                        *
+*      THE NEED FOR SPEED - CFM File format description - Version 0.1    *
+*      Copyright Mike 'Thommson' (editor@nd4spd.com), 1998.        	 *
+*                                                                        *
+**************************************************************************
+
+Disclaimer : The following information is not certified 100% accurate.
+             Use at your own risks. I am not affiliated in any way to
+             Electronic Arts, so the following is pure guesswork.
+
+Additional contributors :
+    Denis Auroux: Need For Speed file format specification
+
+
+1. wwww Header 
+0x00	0x04	'wwww'
+0x04	0x04	Number of chunks in the file (CFM: 4)
+0x08	0x04	Offset of the first chunk  (relative to start of header)
+0x0C	0x04	Offset of the second chunk (relative to start of header)
+0x10	0x04	Offset of the third chunk  (relative to start of header)
+0x14	0x04	Offset of the fourth chunk (relative to start of header)
+
+2. ORIP Header
+0x00	0x04	'ORIP' (first chunk)
+0x04	0x04	Chunk length in bytes
+0x08	0x04	0x2BC (=700)
+0x0C	0x04	0x00
+0x10	0x04	Record number of block 8 (12-byte records)
+0x14	0x04	? the previous minus 0x10
+0x18	0x04	Offset of block 8 in the ORIP (in bytes)
+0x1C	0x04	Record number of block 2 (8-byte records)
+0x20	0x04	Offset of block 2
+0x24	0x04	Record number of block 1 (12-byte records)
+0x28	0x04	Offset of block 1 (=0x70)
+0x2C	0x0C	Identifier string
+0x38	0x04	Record number of block 3 (20-byte records)
+0x3C	0x04	Offset of block 3
+0x40	0x04	Record number of block 4 (20-byte records)
+0x44	0x04	Offset of block 4
+0x48	0x04	Record number of block 5 (28-byte records)
+0x4C	0x04	Offset of block 5
+0x50	0x04	Offset of block 9
+0x54	0x04	Record number of block 6 (12-byte records)
+0x58	0x04	Offset of block 6
+0x5C	0x04	Record number of block 7 (12-byte records)
+0x60	0x04	Offset of block 7
+0x64	0x04	0x00
+0x68	0x04	0x70
+0x6C	0x04	0x00 
+
+3. ORIP Blocks:
+- first block
+0x00	0x01	83h for triangle, 84h for quadrangle, 8Ch when quadrangle/null
+0x01	0x01	?
+0x02	0x01	texture number
+0x03	0x01	?
+0x04	0x04	polygon offset for pol1
+0x08	0x04	polygon offset for pol2
+
+- second block
+0x00	0x04	X coordinate
+0x04	0x04	Y coordinate
+
+- third block
+0x00	0x08	identifier string 1
+0x08	0x04	identifier string 2
+0x0C	0x08	? 00 00 00 81 F5 00 00 00 
+
+- fourth block
+0x00	0x08	identifier string ('left_tur', 'right_tu')
+0x08	0x04	number of vertices
+0x0C	0x04	polygon offset (in block 9)
+0x10	0x04	?
+
+- fifth block
+0x00	0x0C	identifier string ('NON-SORT', 'inside', 'surface', 'outside')
+0x0C	0x04	?
+0x10	0x04	polygon offset (in block 9)
+0x14	0x04	number of vertices
+0x18	0x04	0x00
+
+- sixth and seventh block
+0x00	0x08	identifier string
+0x08	0x04	?   
+
+- eighth block
+0x00	0x04	x coord. of the vertex
+0x04	0x04	y coord. of the vertex
+0x08	0x04	z coord. of the vertex 
+
+- ninth block
+0x00	0x04	?
+        
+4. SHPI Header
+0x00	0x04	'SHPI'
+0x04	0x04	Length of the file in bytes
+0x08	0x04	Number of objects in the directory
+0x0C	0x04	Directory identifier string ('WRAP')
+
+5. WRAP Header
+0x00	0x04	Identifier string
+0x04	0x04	Offset of the bitmap data (relative to start of SHPI Chunk)
+
+6. Bitmap Data
+0x00	0x01	0x7B
+0x01	0x03	Size of the block (=width * length + 0x10)
+0x04	0x02	Width of the bitmap in pixels
+0x06	0x02	Heigth of the bitmap in pixels
+0x08	0x04	?
+0x0C	0x02	X position to display the bitmap
+0x0E	0x02	Y position to display the bitmap
+0x10	W*H	Width*Heigth	1 byte per pixel
+
+
+
+_____________________________________________________________________________
+
+-- Please e-mail any comments and questions to editor@nd4spd.com      --

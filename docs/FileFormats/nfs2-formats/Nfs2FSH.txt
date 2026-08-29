@@ -1,0 +1,56 @@
+**************************************************************************
+*                                                                        *
+*      NEED FOR SPEED II - FSH File format description - Version 0.1     *
+*      Copyright Mike 'Thommson' (editor@nd4spd.com), 1998.        	 *
+*                                                                        *
+**************************************************************************
+
+Disclaimer : The following information is not certified 100% accurate.
+             Use at your own risks. I am not affiliated in any way to
+             Electronic Arts, so the following is pure guesswork.
+  
+
+1. FSH file starts with header: 
+
+offset  len         data
+=========================
+ 0x00   0x04        'SHPI'
+ 0x04   0x04        file size in bytes
+ 0x08   0x04        number of records in file
+ 0x0C   0x04        'GIMX'
+
+
+2. The header is followed by the directory of file records, which have this structure:
+
+offset  len         data
+=========================
+ 0x00   0x04        name of record
+ 0x04   0x04        offset of record from the beginning of file 
+
+This block is repeated 'number of records in file' times.
+
+
+3. Each directory entry points to a record with following structure:
+ 
+offset  len         data
+=========================
+ 0x00   0x01        record ID
+ 0x01   0x03        ? (usually 0x00)
+ 0x04   0x02        width of record in record units
+ 0x06   0x02        heigth of record in record units
+ 0x08   0x04        number of special units
+ 0x0C   0x02        x position to display
+ 0x0E   0x02        y position to display
+ 0x10   size        record data
+
+Record ID could be:
+  0x2A     Palette (unit size = 4 bytes)
+  0x7D     SHLB (unit size = 4 bytes)
+  0x7B     Texture Bitmap (unit size = 1 byte)
+                                     
+Size = 'width of record in record units' * 'heigth of record in record units' * 'unit size'
+
+ 
+_____________________________________________________________________________
+
+-- Please e-mail any comments and questions to editor@nd4spd.com      --

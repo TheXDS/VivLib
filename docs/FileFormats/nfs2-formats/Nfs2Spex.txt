@@ -1,0 +1,140 @@
+**************************************************************************
+*                                                                        *
+*      NEED FOR SPEED II - File format specifications - Version 0.00     *
+*      Copyright Denis Auroux (auroux@math.polytechnique.fr), 1997.      *
+*                                                                        *
+**************************************************************************
+
+Disclaimer : The following information is not certified 100% accurate.
+             Use at your own risks. I am not affiliated in any way to
+             Electronic Arts, so the following is pure guesswork.
+
+Additional contributors :
+    Ian Brown : the LZ77 algorithm variant used in .QFS files (id 0x10/0x11)
+
+======================================================
+PART I : Commonly used data structures and conventions
+======================================================
+
+I.1 - Numbering conventions
+===========================
+*** Cars :
+0  McLaren F1
+1  Ferrari F50
+2  Ford GT90
+3  Jaguar XJ220 
+4  Lotus GT1
+5  Lotus Esprit V8
+6  ItalDesign Cala
+7  Isdera 112i
+
+*** Tracks : 
+0 'OVAL' Pioneer Testing Facility
+2 'OZ'   Outback
+3 'PAC'  Pacific Spirit
+5 'NORT' North Country
+6 'MED'  Mediterraneo
+7 'MYST' Mystic Peaks
+8 'MONO' Monolithic Studios (secret track)
+
+I.2 - SHPI bitmap directories
+=============================
+
+SHPI structures are used to pack together several bitmaps, each with a 
+4-character identifier. The 16-byte header format is the following :
+
+offset len data
+------ --- ----
+0x00    4  'SHPI'
+0x04    4  length of the file in bytes
+0x08    4  number of objects in the directory
+0x0C    4  directory identifier string (often 'GIMX')
+
+This header is followed by the directory entries, each consisting of a
+4-byte identifier string, and a 4-byte offset inside the SHPI structure 
+pointing to the beginning of the corresponding data.
+
+Each entry in the directory represents a bitmap or sometimes a color palette.
+There may be gaps between the directory and the first bitmap, and between
+consecutive bitmaps (significance unknown). Each directory entry points to a 
+bitmap block with the following structure :
+
+offset len data
+------ --- ----
+0x00    1  7Bh
+0x01    3  size of the block (= width x length + 10h)
+0x04    2  width of the bitmap in pixels
+0x06    2  heigth of the bitmap in pixels
+0x08    4  ?
+0x0C    2  x position to display the bitmap
+0x0E    2  y position to display the bitmap
+0x10  w.h  bitmap data : 1 byte per pixel
+
+Note that value 0xFF in the bitmaps stands for the background : this is useful 
+when a bitmap has to drawn on top of another one.
+
+I.3 - LZ77 compressed data
+==========================
+Many files in NFS2 contain compressed data using various versions of a 
+Lempel-Ziv algorithm.
+
+======================
+PART II : File formats
+======================
+
+II.1 - *.FSH
+============
+Found in: FEDATA\PC\ART, GAMEDATA\DASHHUD\PC, GAMEDATA\RENDER\PC,
+          GAMEDATA\TRACKS\PC
+
+This used to be EA's favorite picture file format in NFS 1, but as
+pictures became larger and computers became faster it got progressively
+replaced by compressed .QFS files.
+
+These files are plain SHPI bitmap directories (see I.2), usually with 
+identifier 'GIMX', containing various bitmap objects and sometimes a palette.
+
+II.2 - *.QFS
+============
+Found: nearly everywhere
+
+This is a compressed version of the .FSH file format, using a LZ77 compression
+algorithm to reduce the size of files (see I.3). The compressed data id is
+usually 0x10. The expanded data is a plain SHPI bitmap directory, usually with
+identifier 'GIMX', containing various bitmap objects and sometimes a palette.
+
+II.3 - *.STF
+============
+Found in: FEDATA\PC\STATS
+
+These 527-byte files contain the best times for each track (the text files
+*.SSF in the same directory are apparently not used at all, they are not 
+updated when new best times are obtained). They contain 31 entries, each 
+of which is 17 bytes long.
+
+- The first entry corresponds to the best lap time
+- The next 10 entries correspond to 2-lap races (best time comes first)
+- The following 10 entries correspond to 4-lap races
+- The last 10 entries correspond to 8-lap races.
+
+Each entry has the following structure :
+
+offset len data
+------ --- ----
+0x00    9  player name : null-terminated character string
+0x09    2  car type : between 0 and 7 (see I.1)
+0x0B    4  time expressed in 64ths of a second
+0x0F    2  skill level : 0 for sim mode, 1 for arcade mode
+
+II.4 - INSTALL.WIN
+==================
+Found in: root directory 
+
+This file lists the directories containing the various components of the
+game (like paths.dat in NFS 1), but is now in text format. Each line contains
+a 3 character code (a digit between 0 and 4, followed by "rn" or "nn"),
+immediately followed by the name of the relevant directory. The two first
+entries code the chosen language ("4nnenglish" if you're like me) and setup
+type ("4nnlocal" usually).
+
+

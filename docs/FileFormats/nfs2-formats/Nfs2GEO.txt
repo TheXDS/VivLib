@@ -1,0 +1,151 @@
+**************************************************************************
+*                                                                        *
+*      NEED FOR SPEED II - GEO File format description - Version 0.1     *
+*      Copyright Mike 'Thommson' (editor@nd4spd.com), 1997.       	 *
+*                                                                        *
+**************************************************************************
+
+Disclaimer : The following information is not certified 100% accurate.
+             Use at your own risks. I am not affiliated in any way to
+             Electronic Arts, so the following is pure guesswork.
+
+
+
+1. The GEO file starts with following header:
+
+offset  len         data
+=========================
+ 0x00   0x04        ? possible value: 0x00, 0x01, 0x02
+ 0x04   0x04 * 32   ? useless list with values, which increase by 0x40
+		      (maybe global offset list, which is needed for calculating
+		       the position of the blocks)
+ 0x84   0x08	    always 0x00 
+
+2. The header is followed by the car part blocks, which header(0x34) is:
+(if the first value is 0x00 then jump 0x34 bytes forward)  
+
+offset  len         data
+=========================
+ 0x00   0x04        number of vertices in block
+ 0x04   0x04        number of polygons in block
+ 0x08   0x04        absolute X coordinate of block
+ 0x0C   0x04        absolute Y coordinate of block
+ 0x10   0x04        absolute Z coordinate of block
+ 0x14   0x04        ? similar to the value in the list above
+ 0x18   0x04        ? similar to the value in the list above
+ 0x1C   0x08        always 0x00
+ 0x24   0x08	    always 0x01
+ 0x2C   0x08        always 0x01 
+
+NOTE: if the number of vertices is uneven (odd) then increase the value by 1 !
+
+3. The block 3D structure starts at offset 0x34 inside the block (just
+after the header), and consists of two tables :
+
+- the vertex table, which lists the relative 16-bit coordinates corresponding
+to all vertices of the structure (total size = 0x06*number_of_vertices bytes).
+Each entry is:
+
+offset  len         data
+=========================
+ 0x00   0x02        relative x
+ 0x02   0x02        relative y
+ 0x04   0x02        relative z
+
+- the polygon table, which lists the various polygons making up the structure
+(total size = 0x0C*number_of_polygons bytes). Each entry is:
+
+offset  len         data
+=========================
+ 0x00   0x04        ? maybe texture mapping type
+ 0x04   0x01        first vertex of polygon
+ 0x05   0x01        second vertex of polygon
+ 0x06   0x01        third vertex of polygon
+ 0x07   0x01        fourth vertex of polygon
+ 0x08   0x04        name of the texture in the QFS file  
+
+4. The GEO files cooperate with QFS files, which have the same name and
+contain the texture of the car, with CARHSVT.SJH, has 16 times 4 values to 
+manipulate the color of the texture, and DELTA.SJH . 
+
+5. CARHSVT.SJH contains folowing information:
+
+/* GIO'S HSVT CAR COLOR FILE */
+/* Color 0 */
+0,0,210,80
+
+/* Color 1 */
+0,0,60,110
+
+/* Color 2 */
+254,215,249,96
+
+/* Color 3 */
+253,219,133,100
+
+/* Color 4 */
+249,179,101,81
+
+/* Color 5 */
+28,253,209,58
+
+/* Color 6 */
+13,225,249,89
+
+/* Color 7 */
+42,151,89,92
+
+/* Color 8 */
+89,175,63,105
+
+/* Color 9 */
+150,255,230,106
+
+/* Color 10 */
+169,165,177,117
+
+/* Color 11 */
+211,205,132,79
+
+/* Color 12 */
+127,207,100,100
+
+/* Color 13 */
+25,196,200,73
+
+/* Color 14 */
+0,0,120,86
+
+/* Color 15 */
+248,197,210,95
+
+/* Color 16 */
+120,163,211,102
+
+/* Color 17 */
+163,86,211,102
+
+/* Color 18 */
+26,89,250,94
+
+/* Color 19 */
+43,211,239,102
+
+/* Color 20 */
+15,204,244,159
+
+/* Color 21 */
+26,218,255,123
+
+/* Color 22 */
+53,167,176,145
+
+/* Color 23 */
+246,112,247,105
+
+
+
+
+_____________________________________________________________________________
+
+-- Please e-mail any comments and questions to editor@nd4spd.com      --

@@ -1,0 +1,220 @@
+**************************************************************************
+*                                                                        *
+*      NEED FOR SPEED II - DAT File format description - Version 0.1     *
+*      Copyright Steve Selzer (sselzer637@aol.com), 1997.         	 *
+*                                                                        *
+**************************************************************************
+
+
+=========================================================================
+                        NFS2 CAR PERFORMANCE FILE SPECS       10/25/97
+=========================================================================
+????.QDA PERFORMANCE FILE FORMAT:
+
+WHERE:FIXED PT. = 32-BIT INTEGER
+                = FORMAT: (0x0000- 0000)
+                             INT - FRACTION
+
+
+OFFSET  DESCRIPTION     
+------  -----------
+0x000   WEIGHT / 2 IN FIXED PT.
+        MIN = 750(vw) MAX = 12000(bus)
+
+0x004   NUMBER OF GEARS INCLUDING REVERSE AND NEUTRAL
+        MIN = 6 MAX = 8
+
+0x008   VEHICLE CHASSIS TYPE
+        2  = TOUR BUS CLASS
+        4  = FORD INDIGO CLASS
+        6  = LOTUS GT1 CLASS
+        8  = MCLAREN CLASS
+        10 = CHEVY CLASS
+        12 = BMW CLASS
+        16 = VOLKS WAGON CLASS
+        24 = BUS CLASS 
+
+---------------------------------------------------         
+NOTE : THE NEXT 57 INTEGERS ARE ALL IN FIXED PT. 
+        
+0x00C   REVERSE :       GEAR RATIO 
+0x010   NEUTRAL :       ALWAYS ZERO
+0x014   1ST     :       GEAR RATIO 
+0x018   2ND     :       GEAR RATIO   
+0x01C   3RD     :       GEAR RATIO   
+0x020   4TH     :       GEAR RATIO   
+0x024   5TH     :       GEAR RATIO  OR ZERO IF 4 SPEED 
+0x028   6TH     :       GEAR RATIO  OR ZERO IF 5 SPEED 
+-----------
+BHP(BRAKE HORSE POWER)/GEAR MULTIPLIERS 
+        
+        0X10000 = 1* BHP/RPM VALUES DEFINED BELOW
+        0X20000 = 2* ECT.
+0x02C   REVERSE :       GEAR BHP multiplier
+0x030   NEUTRAL :       GEAR BHP multiplier 
+0x034   1ST     :       GEAR BHP multiplier
+0x038   2ND     :       GEAR BHP multiplier 
+0x03C   3RD     :       GEAR BHP multiplier
+0x040   4TH     :       GEAR BHP multiplier
+0x044   5TH     :       GEAR BHP multiplier
+0x048   6TH     :       GEAR BHP multiplier
+-----------
+
+THE NEXT 41 VALUES INDICATE BHP AS A PERCENTAGE OF RPM
+WITH THE FOLLOWING STRUCTURE:
+
+0x04C   BHP AT MIN RPM FOR ALL GEARS 
+        TO
+0x0EC   BHP AT MAX RPM FOR ALL GEARS     
+---------
+END FIXED PT. TABLES          
+-----------------------------------------------
+
+0x0F0   MAX DEVELOPED RPM
+0x0F4   MIN = 1e0000 
+        MAX = 7e0000 (indigo)
+0x0F8   ????  
+0x0FC   ????  
+0x100   ????
+---------  
+0x104   32 BYTES THAT CHANGING AND TESTING APPEAR TO DO NOTHING
+ TO
+0x124
+---------
+0x124   ????    
+0x128   ????
+  
+0x12C   STEERING/HANDLING :LARGER IS BETTER
+---------
+NOTE:   HEAVY CARS HAVE LESS FOR NEXT 2 VALUES
+        MOST RACE CARS ARE 16/32
+0x130   6  8  10 12 14 16   INDIGO 16
+0x134   12 16 20 24 28 32   INDIGO 36
+---------
+0x138   MIN = 0xE666 
+        MAX = 0x46666 
+        SEMI HAS 0x10000 
+        RACE CARS > 0x10000
+0x13C   ALL PTR*.QDA HAVE 0 GT1 HAS MAX VALUE (0xA3) 
+0x140   ????      
+0x144   ????   
+0x148   ????   
+0x14C   ????   
+0x150   ????   
+0x154   ????
+0x158   PIONEER ENGINE RPM
+0x15C   ????   
+0x160   ???? 
+===========================
+notes:
+
+MOST ???? VALUES I HAVE CHANGED WITHOUT NOTICABLE AFFECTS.
+
+The values to change that give the most satisfaction are:
+
+maximun rpm
+bhp/gear
+steering
+gear ratios
+weight
+vehicle chassis type
+
+performance characteristics:
+---------------------------     
+The calculations below depend on all bhp/rpm values(41 in all) being set to:
+                        0x640000 (100 in fixed pt.)
+
+where:  gr = gear ratio of the gear of interest.
+     :  rps = rpm/60.
+     :  maxspeed = maximun obtainable speed of a particular gear.   
+     :  acceltime = time in seconds to accelerate to maxspeed
+                    in a particular gear.   
+
+maxspeed        == (max rpm * 2.165)/gr
+        and
+ a              == a=(gr/rps @ 500 - gr/rps @ max rps)
+ dist           == (maxspeed this gear-maxspeed last gear)*1.467
+acceltime       == (dist/a) * ((weight/bhp)/5)
+
+note: maxspeed is accurate in top gear only if there is enough bhp.
+---------------------------
+
+
+Any comments or questions e-mail me at sselzer637@aol.com.
+Special thanks to denis auroux who provided vital information and source code.
+ 
+P.S. I NEED FILE SPECS FOR *.GEO FILES. ANY HELP ON THE STRUCTURE OF THESE FILES
+WOULD BE
+GREATLY APPRECIATED.
+
+
+Included below is some initial info reguarding the structure of the car bitmap
+files.
+*.qfs car bitmap file info
+
+the header
+        int     "SHPI"
+        int     file length
+        int     directory entry count
+        int     "GIMX"
+end
+
+each directory
+        int     "name" as found in geo files
+        int     offset from start of file to the bitmap header
+end
+
+bitmap header
+        int     id= 0x2a=palette 0x7d=a "SHLB" 0x7b=std. bitmap
+        short   width
+        short   heigth
+        int     ??
+        int     ??
+end
+
+notes:
+a char==0xff indicates a transparent bit
+the first dir entry "0000" is the palette. 
+256 colors described as 1 int for each color.
+red=color[0]
+green-color[1]
+blue=color[2]
+0xff=color[3] = not used
+i have displayed most of the .qfs files using the above info
+and the graffic,s display perfectly.
+
+does anybody know what a "SHLB" is????
+bye!!
+============================================================================   
+
+  Fixed mass
+  number of gears (reverse + neutral + forward gears)
+  gear shift delay (ticks)
+  gear efficiency (array size 8)
+  velocity to rpm ratio (array size 8)
+  torque curve (array size 41) in 256rpm increments
+  engine redline in rpm
+  maximum velocity of car in m/s
+  front drive ratio
+  maximum braking deceleration
+  front bias brake ratio
+  gas increasing curve (array size 2)
+  gas decreasing curve (array size 2)
+  brake increasing curve (array size 2)
+  brake decreasing curve (array size 2)
+  wheel base
+  front grip bias
+  maximum steering acceleration
+  turn in ramp
+  turn out ramp
+  lateral acceleration grip multiplier
+  aerodynamic downforce multiplier
+  gas off factor
+  transfer factor
+  Slide Multiplier
+  Spin velocity cap
+  Slide Velocity Cap
+  Slide Assistance Factor
+  Push Factor
+  "Low Turn Factor (the lower the figure, the better the turn)"
+  "High Turn Factor (the lower the figure, the better the turn)"     

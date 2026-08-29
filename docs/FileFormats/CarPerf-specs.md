@@ -248,22 +248,26 @@ The `CarPerf` model hierarchy is:
 
 ## CarClass Enums
 
+The difference between NFS3 and NFS4 `CarPerf` implementations (apart from the additional *understeer gradient* seen in NFS4) is in the field size for the `CarClass` enum, where NFS3 uses 2 bytes (`ushort`) and NFS4 uses a single byte.
+
+This only affects VivLib's code, as the _CarPerf_ file format uses text. But, given how other binary formats allocate space for this field, this quirk is inherited by the `CarPerf` serialization; hence this difference.
+
 ### NFS3 CarClass (`ushort`)
 
-| Value | Class |
-|-------|-------|
-| `0` | A |
-| `1` | B |
-| `2` | C |
+| Value    | Class |
+|----------|:-----:|
+| `0x0000` | A |
+| `0x0001` | B |
+| `0x0002` | C |
 
 ### NFS4 CarClass (`byte`)
 
-| Value | Class |
-|-------|-------|
-| `0x0` | AAA |
-| `0x1` | AA |
-| `0x2` | A |
-| `0x3` | B |
+| Value  | Class |
+|--------|:-----:|
+| `0x00` | AAA   |
+| `0x01` | AA    |
+| `0x02` | A     |
+| `0x03` | B     |
 
 ## Field Reference Summary
 
